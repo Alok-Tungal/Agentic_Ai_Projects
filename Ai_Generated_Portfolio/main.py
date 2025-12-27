@@ -10,8 +10,15 @@ import streamlit.components.v1 as components
 # -----------------------------
 # 1. Configuration & Setup
 # -----------------------------
-load_dotenv()
-os.environ["GOOGLE_API_KEY"] = os.getenv("gemini")
+# load_dotenv()
+# os.environ["GOOGLE_API_KEY"] = os.getenv("gemini")
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
+
+if not GOOGLE_API_KEY:
+    st.error("Google API Key not found. Please set it in environment variables.")
+    st.stop()
+
 
 st.set_page_config(
     page_title="Portfolio.AI",
