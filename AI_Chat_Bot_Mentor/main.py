@@ -81,7 +81,6 @@ def inject_custom_css():
         /* Main Background and Text */
         .stApp {
             background-color: #0E1117;
-            color: #FAFAFA;
         }
         
         /* Hide Streamlit Main Menu and Footer */
