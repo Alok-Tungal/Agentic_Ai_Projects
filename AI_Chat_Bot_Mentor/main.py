@@ -4,8 +4,11 @@ from dotenv import load_dotenv
 import os 
 
 # 1. Load environment variables once
-load_dotenv()
-os.environ['GOOGLE_API_KEY'] = os.getenv('gemini')
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
+
+if not GOOGLE_API_KEY:
+    st.error("Google API Key not found. Please set it in environment variables.")
+    st.stop()
 
 
 # Regular model
