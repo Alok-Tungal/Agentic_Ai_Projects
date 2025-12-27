@@ -1,4 +1,4 @@
-# 🤖 AI Chatbot Mentor  
+# 🤖 AI Chatbot Mentor   
 ### 🎓 Domain-Specific Intelligent Learning Assistant
 
 AI Chatbot Mentor is a Streamlit-powered AI mentoring application designed for focused, structured, and domain-restricted learning.  
