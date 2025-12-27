@@ -190,8 +190,8 @@ if prompt:
         try:
             # Using 1.5-flash for speed and stability
             llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash", 
-                temperature=0.7,
+                model="gemini-2.5-flash", 
+                temperature=0.4,
                 google_api_key=GOOGLE_API_KEY,
                 streaming=True  # ENABLE STREAMING FOR REAL-TIME FEEL
             )
