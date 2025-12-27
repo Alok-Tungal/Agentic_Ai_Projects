@@ -227,7 +227,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Check for API Key
-api_key = os.getenv("GOOGLE_API_KEY")
+api_key = os.getenv("GOOGLE_API_KEY") 
 if not api_key:
     raise ValueError("GOOGLE_API_KEY not found in environment variables.")
 
