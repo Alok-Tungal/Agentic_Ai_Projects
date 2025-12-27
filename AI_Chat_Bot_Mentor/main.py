@@ -62,175 +62,174 @@
 
 
 import streamlit as st
-from langchain_google_genai import ChatGoogleGenerativeAI
 import os
+from langchain_google_genai import ChatGoogleGenerativeAI
+from dotenv import load_dotenv
 
-# --- 1. CONFIGURATION MUST BE FIRST ---
+# --- 1. PAGE CONFIGURATION (MUST BE FIRST) ---
 st.set_page_config(
-    page_title="AI Mentor",
-    page_icon="🧠",
-    layout="centered",
-    initial_sidebar_state="collapsed"
+    page_title="AI Mentor Pro",
+    page_icon="🎓",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# --- 2. CUSTOM THEME (HTML/CSS/JS) ---
-# This function injects custom CSS to remove Streamlit branding and style the chat
-def inject_custom_css():
-    st.markdown("""
-    <style>
-        /* Main Background and Text */
-        .stApp {
-            background-color: #0E1117;
-        }
-        
-        /* Hide Streamlit Main Menu and Footer */
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-        
-        /* Custom Header Styling */
-        .custom-header {
-            text-align: center;
-            padding: 2rem 0;
-            background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);
-            border-radius: 0 0 20px 20px;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
-        .custom-header h1 {
-            color: white;
-            font-family: 'Helvetica Neue', sans-serif;
-            font-weight: 700;
-            margin: 0;
-            font-size: 2.5rem;
-        }
-        .custom-header p {
-            color: #d1d5db;
-            margin-top: 10px;
-            font-size: 1.1rem;
-        }
+# Load environment variables
+load_dotenv()
 
-        /* Chat Message Bubble Styling */
-        .stChatMessage {
-            background-color: transparent !important;
-            border: none !important;
-        }
+# --- 2. PROFESSIONAL STYLING (CSS) ---
+# We inject this immediately so the UI looks good while loading
+st.markdown("""
+<style>
+    /* 1. Main Background and Font */
+    .stApp {
+        background-color: #0e1117;
+        color: #ffffff;
+        font-family: 'Inter', sans-serif;
+    }
 
-        /* User Message (Right Side/Blue) */
-        div[data-testid="stChatMessage"]:nth-child(odd) {
-            flex-direction: row-reverse;
-            text-align: right;
-        }
-        div[data-testid="stChatMessage"]:nth-child(odd) div[data-testid="stChatMessageContent"] {
-            background: linear-gradient(135deg, #0061ff 0%, #60efff 100%);
-            color: white;
-            border-radius: 20px 20px 0 20px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+    /* 2. Hide Default Streamlit Elements */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
 
-        /* AI Message (Left Side/Dark Gray) */
-        div[data-testid="stChatMessage"]:nth-child(even) div[data-testid="stChatMessageContent"] {
-            background-color: #262730;
-            border: 1px solid #4a4a4a;
-            color: #e0e0e0;
-            border-radius: 20px 20px 20px 0;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        /* Avatar Styling */
-        div[data-testid="stChatMessage"] .st-emotion-cache-1p1m4ay {
-            display: none; /* Hide default avatars to keep it clean, optional */
-        }
-        
-        /* Input Box Styling */
-        .stChatInput {
-            position: fixed;
-            bottom: 20px;
-            width: 700px; /* Adjust based on layout */
-            z-index: 1000;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+    /* 3. Custom Header */
+    .main-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 2rem;
+        border-radius: 15px;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .main-header h1 {
+        color: white;
+        margin: 0;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+    .main-header p {
+        color: #e0e0e0;
+        font-size: 1.1rem;
+        margin-top: 0.5rem;
+    }
 
-    # Custom Header HTML
-    st.markdown("""
-        <div class="custom-header">
-            <h1>🧠 AI Mentor</h1>
-            <p>Your personal guide to wisdom and coding</p>
-        </div>
-    """, unsafe_allow_html=True)
+    /* 4. Chat Message Styling */
+    /* AI Message (Left) */
+    .stChatMessage[data-testid="stChatMessage"]:nth-of-type(even) {
+        background-color: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        padding: 10px;
+    }
+    
+    /* User Message (Right - Visual trick using CSS is hard in Streamlit, 
+       so we stick to a clean highlighted look) */
+    .stChatMessage[data-testid="stChatMessage"]:nth-of-type(odd) {
+        background-color: #1e1e1e;
+        border: 1px solid #667eea;
+        border-radius: 10px;
+        padding: 10px;
+    }
 
-# --- 3. API SETUP ---
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+    /* 5. Input Box Styling */
+    .stChatInput textarea {
+        background-color: #1e293b !important;
+        color: white !important;
+        border: 1px solid #475569 !important;
+    }
+    
+    /* 6. Sidebar Styling */
+    section[data-testid="stSidebar"] {
+        background-color: #0f172a;
+        border-right: 1px solid #1e293b;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-# If no key in Env, try sidebar input for testing
-if not GOOGLE_API_KEY:
-    with st.sidebar:
-        st.warning("⚠️ No API Key found in Environment.")
-        GOOGLE_API_KEY = st.text_input("Enter Gemini API Key", type="password")
+# --- 3. UI HEADER ---
+st.markdown("""
+<div class="main-header">
+    <h1>🎓 AI Mentor Chatbot</h1>
+    <p>Your intelligent companion for coding and wisdom</p>
+</div>
+""", unsafe_allow_html=True)
 
-if not GOOGLE_API_KEY:
-    inject_custom_css()
-    st.info("Please enter your Google API Key to start the mentor session.")
-    st.stop()
+# --- 4. SIDEBAR SETTINGS ---
+with st.sidebar:
+    st.header("⚙️ Settings")
+    
+    # API Key Input (if not in env)
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        api_key = st.text_input("Enter Google API Key", type="password")
+    
+    st.divider()
+    
+    # Model Controls
+    temperature = st.slider("Creativity Level", 0.0, 1.0, 0.7)
+    model_name = st.selectbox("Select Model", ["gemini-1.5-flash", "gemini-1.5-pro"])
+    
+    st.divider()
+    
+    # Clear Chat Button
+    if st.button("🗑️ Clear Conversation", use_container_width=True):
+        st.session_state['conv'] = []
+        st.session_state['memory'] = []
+        st.rerun()
 
-# --- 4. INITIALIZE STATE ---
+    st.markdown("---")
+    st.caption("Developed by Alok Mahadev Tungal")
+
+# --- 5. INITIALIZE STATE ---
 if "conv" not in st.session_state:
     st.session_state['conv'] = []
     st.session_state['memory'] = []
-    # UPDATED SYSTEM PROMPT: Changed from "5 year old" to "Mentor"
-    system_instruction = "You are a wise, patient, and expert AI Mentor. You help users solve problems with clear examples and encouraging language."
-    st.session_state['memory'].append(("system", system_instruction))
+    # System Prompt
+    system_prompt = "You are an expert AI Mentor. Answer questions clearly, provide code examples where helpful, and be encouraging."
+    st.session_state['memory'].append(("system", system_prompt))
 
-# --- 5. RENDER UI ---
-inject_custom_css()
+# --- 6. MAIN CHAT INTERFACE ---
+
+# If no API key, stop here
+if not api_key:
+    st.warning("⚠️ Please enter your Google API Key in the sidebar to continue.")
+    st.stop()
 
 # Display Chat History
-# We use a container to keep the messages separate from the input
-chat_container = st.container()
+for msg in st.session_state['conv']:
+    # Choose avatar based on role
+    icon = "👤" if msg['role'] == 'user' else "🤖"
+    with st.chat_message(msg['role'], avatar=icon):
+        st.write(msg['content'])
 
-with chat_container:
-    for message in st.session_state['conv']:
-        # Assign avatars based on role
-        avatar = "🧑‍💻" if message['role'] == 'user' else "🧠"
-        with st.chat_message(message['role'], avatar=avatar):
-            st.write(message['content'])
-
-# --- 6. HANDLE INPUT & LOGIC ---
-prompt = st.chat_input("Ask your mentor anything...")
+# Chat Input
+prompt = st.chat_input("Ask me anything about coding or life...")
 
 if prompt:
-    # 1. Display User Message Immediately
-    with chat_container:
-        with st.chat_message('user', avatar="🧑‍💻"):
-            st.write(prompt)
-
-    # 2. Update History
+    # 1. Show User Message
+    st.chat_message("user", avatar="👤").write(prompt)
+    
+    # 2. Add to History
     st.session_state['conv'].append({"role": "user", "content": prompt})
-    st.session_state['memory'].append(('user', prompt))
-
+    st.session_state['memory'].append(("user", prompt))
+    
     # 3. Generate Response
     try:
-        # Note: 'gemini-2.5-flash' is likely a typo or private preview. 
-        # Using 'gemini-1.5-flash' for stability. Change back if needed.
-        model = ChatGoogleGenerativeAI(
-            model="gemini-1.5-flash", 
-            temperature=0.7, # Slightly creative but focused
-            api_key=GOOGLE_API_KEY
+        llm = ChatGoogleGenerativeAI(
+            model=model_name,
+            temperature=temperature,
+            google_api_key=api_key
         )
         
-        response = model.invoke(st.session_state['memory'])
-        
-        # 4. Display AI Message
-        with chat_container:
-            with st.chat_message('ai', avatar="🧠"):
-                st.write(response.content)
-
-        # 5. Update History with AI Response
+        with st.chat_message("ai", avatar="🤖"):
+            response_placeholder = st.empty()
+            response = llm.invoke(st.session_state['memory'])
+            response_placeholder.write(response.content)
+            
+        # 4. Add AI Response to History
         st.session_state['conv'].append({"role": "ai", "content": response.content})
         st.session_state['memory'].append(("ai", response.content))
-
+        
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        st.error(f"Error: {e}")
