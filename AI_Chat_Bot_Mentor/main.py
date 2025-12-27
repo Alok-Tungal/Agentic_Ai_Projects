@@ -48,8 +48,9 @@ if prompt:
     with st.chat_message('user'):
         st.write(prompt)
 
-    model=ChatGoogleGenerativeAI(model="gemini-1.5-flash")
-
+    # model=ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+    model = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=1.0)
+    # messages = [("system", system_prompt), ("human", resume_text)]
     response=model.invoke(st.session_state['memory'])
 
     with st.chat_message('ai'):
