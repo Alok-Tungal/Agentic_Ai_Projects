@@ -3,7 +3,7 @@
 # from dotenv import load_dotenv
 # import os  
 
-# # 1. Load environment variables once
+# # 1. Load environment variables once 
 # GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
   
 # if not GOOGLE_API_KEY:
