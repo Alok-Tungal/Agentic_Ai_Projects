@@ -121,7 +121,7 @@ st.markdown("""
     /* Chat Bubbles */
     .stChatMessage {
         background-color: transparent;
-    }
+    }     
     
     /* User Message (Blue Gradient) */
     div[data-testid="stChatMessage"]:nth-child(odd) div[data-testid="stChatMessageContent"] {
