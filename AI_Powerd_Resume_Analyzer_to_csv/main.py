@@ -3316,17 +3316,12 @@ def analyze_resume(text):
 # ==========================================
 # 4. MAIN UI
 # ==========================================
-st.markdown(
-    """
-    <div class="hero-container">
-        <div class="hero-title">Resume Intelligence AI</div>
-        <p style="font-size:1.2rem;">
-            Upload Resumes &bull; Extract Insights &bull; Export Data
-        </p>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# st.markdown("""
+# <div class="hero-container">
+#     <div class="hero-title">Resume Intelligence AI</div>
+#     <p style="font-size: 1.2rem; color: #e0e0e0;">Upload Resumes • Extract Insights • Export Data</p>
+# </div>
+# """, unsafe_allow_html=True)
 
 
 if not GOOGLE_API_KEY:
@@ -3345,6 +3340,7 @@ if uploaded_files:
     c1, c2, c3 = st.columns([1,1,1])
     with c2:
         start_process = st.button("🚀 IGNITE ANALYSIS", use_container_width=True)
+
 
 
 
