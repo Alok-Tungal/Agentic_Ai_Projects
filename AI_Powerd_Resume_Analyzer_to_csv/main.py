@@ -3144,7 +3144,6 @@ st.markdown("""
     font-family: 'Outfit', sans-serif;
     color: #ffffff;
 }
-
 /* Force all text white */
 p, h1, h2, h3, h4, h5, h6, li, span, div {
     color: #ffffff;
@@ -3340,6 +3339,7 @@ if uploaded_files:
     c1, c2, c3 = st.columns([1,1,1])
     with c2:
         start_process = st.button("🚀 IGNITE ANALYSIS", use_container_width=True)
+
 
 
 
