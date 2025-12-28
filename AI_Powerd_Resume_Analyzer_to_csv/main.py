@@ -1925,7 +1925,7 @@ def analyze_resume(text):
     genai.configure(api_key=GOOGLE_API_KEY)
     
     # Changed to 1.5-flash to ensure it works (2.5 might cause errors if not available)
-    model = genai.GenerativeModel('gemini-2.5-flash')
+    model = genai.GenerativeModel('gemini-2.5-flash-lite')
     
     prompt = f"""
     Analyze the resume text below and extract data into strict JSON.
@@ -2075,6 +2075,7 @@ if uploaded_files:
                     mime="text/csv",
                     use_container_width=True
                 )
+
 
 
 
