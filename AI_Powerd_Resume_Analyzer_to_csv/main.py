@@ -1691,11 +1691,18 @@ st.markdown("""
         padding: 2rem;
     }
     
-    /* Fix 1: Make Filenames White (The invisible text issue) */
+    # /* Fix 1: Make Filenames White (The invisible text issue) */
+    # div[data-testid="stFileUploader"] div[role="listitem"] div {
+    #     color: #ffffff !important;
+    #     font-weight: 600 !important;
+    #     background-color: transparent !important;
+    # }
+
+    /* --- FIX: Make Uploaded Filename White --- */
     div[data-testid="stFileUploader"] div[role="listitem"] div {
         color: #ffffff !important;
-        font-weight: 600 !important;
         background-color: transparent !important;
+        font-weight: 600 !important;
     }
     
     /* Fix 2: Small "Limit 200MB" text */
@@ -2290,4 +2297,5 @@ if uploaded_files:
 #                     mime="text/csv",
 #                     use_container_width=True
 #                 )
+
 
