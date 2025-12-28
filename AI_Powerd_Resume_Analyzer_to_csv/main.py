@@ -3031,16 +3031,31 @@ section[data-testid="stSidebar"] {display: none;}
     padding: 2rem;
 }
 
-/* ✅ FINAL & CORRECT FIX — FILE NAME TEXT */
-span[data-testid="fileUploaderFileName"] {
+# /* ✅ FINAL & CORRECT FIX — FILE NAME TEXT */
+# span[data-testid="fileUploaderFileName"] {
+#     color: #ffffff !important;
+#     font-weight: 600 !important;
+# }
+
+# /* File size text (98.9KB) */
+# span[data-testid="fileUploaderFileSize"] {
+#     color: #cfcfcf !important;
+# }
+
+
+/* FORCE uploaded file name to WHITE (dark background fix) */
+span[data-testid="fileUploaderFileName"],
+span[data-testid="fileUploaderFileName"] * {
     color: #ffffff !important;
-    font-weight: 600 !important;
 }
 
-/* File size text (98.9KB) */
+/* File size text (e.g. 98.9KB) */
 span[data-testid="fileUploaderFileSize"] {
-    color: #cfcfcf !important;
+    color: #d0d0d0 !important;
 }
+
+
+
 
 /* Upload icon */
 div[data-testid="stFileUploader"] svg {
@@ -3198,6 +3213,7 @@ if uploaded_files:
     c1, c2, c3 = st.columns([1,1,1])
     with c2:
         start_process = st.button("🚀 IGNITE ANALYSIS", use_container_width=True)
+
 
 
 
