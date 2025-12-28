@@ -1,5 +1,8 @@
 streamlit
+langchain
+langchain_google_genai
 pdfplumber
 pandas
 pydantic
 python-dotenv
+
