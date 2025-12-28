@@ -2,7 +2,7 @@
 # import pandas as pd
 # import pdfplumber
 # import zipfile
-# import io
+# import io 
 # import json    
 # import google.generativeai as genai
 # from pydantic import BaseModel, Field
@@ -621,6 +621,7 @@ if uploaded_files and GOOGLE_API_KEY:
                 mime="text/csv"
 
             )
+
 
 
 
