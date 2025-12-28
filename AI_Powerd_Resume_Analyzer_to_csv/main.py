@@ -3132,7 +3132,8 @@ st.set_page_config(
 # </style>
 # """, unsafe_allow_html=True)
 
-
+st.markdown("""
+<style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 /* ============================= */
@@ -3339,6 +3340,7 @@ if uploaded_files:
     c1, c2, c3 = st.columns([1,1,1])
     with c2:
         start_process = st.button("🚀 IGNITE ANALYSIS", use_container_width=True)
+
 
 
 
