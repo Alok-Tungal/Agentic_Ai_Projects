@@ -1,7 +1,7 @@
 # import streamlit as st
 # import pandas as pd
 # import pdfplumber
-# import io
+import io
 # import json
 # import os
 # from dotenv import load_dotenv
@@ -472,5 +472,6 @@ if uploaded_files:
                 mime="text/csv",
                 use_container_width=True
             )
+
 
 
