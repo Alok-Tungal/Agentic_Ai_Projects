@@ -442,10 +442,16 @@ from typing import List, Optional
 # ==========================================
 
 # Load environment variables from the .env file
-load_dotenv()
+# load_dotenv()
 
-# Fetch the key securely
-API_KEY = os.getenv("gemini")
+# # Fetch the key securely
+# API_KEY = os.getenv("gemini")
+
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
+
+if not GOOGLE_API_KEY:
+    st.error("Google API Key not found. Please set it in environment variables.")
+    st.stop()
 
 # ==========================================
 # 2. DATA STRUCTURE
@@ -613,4 +619,5 @@ if uploaded_files and API_KEY:
                 data=csv_data,
                 file_name="resume_report.csv",
                 mime="text/csv"
+
             )
