@@ -1779,17 +1779,35 @@ st.markdown("""
         padding: 2rem;
     }
     
-    /* --- CRITICAL FIX: FORCE WHITE TEXT FOR FILE NAMES --- */
-    div[data-testid="stFileUploader"] div[role="listitem"] {
-        color: white !important;
+    # /* --- CRITICAL FIX: FORCE WHITE TEXT FOR FILE NAMES --- */
+    # div[data-testid="stFileUploader"] div[role="listitem"] {
+    #     color: white !important;
+    # }
+    # div[data-testid="stFileUploader"] div[role="listitem"] div {
+    #     color: white !important;
+    # }
+    # div[data-testid="stFileUploader"] div[role="listitem"] span {
+    #     color: white !important;
+    # }
+    # /* ----------------------------------------------------- */
+    
+
+`    /* Force ALL text inside the uploader to be white */
+
+    .stFileUploader * {
+
+        color: #ffffff !important;
+
     }
-    div[data-testid="stFileUploader"] div[role="listitem"] div {
-        color: white !important;
+
+    /* Except the small "Limit 200MB" text - make it light gray */
+
+    .stFileUploader small {
+
+        color: #a0a0a0 !important;
+
     }
-    div[data-testid="stFileUploader"] div[role="listitem"] span {
-        color: white !important;
-    }
-    /* ----------------------------------------------------- */
+
 
     /* Small 'Limit 200MB' text */
     .stFileUploader small {
@@ -2075,6 +2093,7 @@ if uploaded_files:
                     mime="text/csv",
                     use_container_width=True
                 )
+
 
 
 
