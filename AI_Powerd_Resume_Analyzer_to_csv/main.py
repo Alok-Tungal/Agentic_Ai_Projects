@@ -214,7 +214,7 @@ st.markdown("""
     /* Global Styles */
     .stApp {
         background-color: #0f1116; /* Dark background */
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', sans-serif; 
     }
     
     /* Hide Default Streamlit Menu */
@@ -472,4 +472,5 @@ if uploaded_files:
                 mime="text/csv",
                 use_container_width=True
             )
+
 
