@@ -3,4 +3,4 @@ google-generativeai
 pdfplumber
 pandas
 pydantic
-python-dotenv
+python-dotenv 
