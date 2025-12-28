@@ -1705,7 +1705,7 @@ st.markdown("""
 
     /* Fix 3: Prevent "White Out" on Hover */
     div[data-testid="stFileUploader"]:hover {
-        background-color: rgba(255, 255, 255, 0.08) !important; /* Slight lighten only */
+        background-color: rgba(255, 255, 255, 0.10) !important; /* Slight lighten only */
     }
     
     /* Browse Button */
@@ -2290,3 +2290,4 @@ if uploaded_files:
 #                     mime="text/csv",
 #                     use_container_width=True
 #                 )
+
