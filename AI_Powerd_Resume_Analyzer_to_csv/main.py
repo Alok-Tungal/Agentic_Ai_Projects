@@ -699,7 +699,7 @@ def analyze_resume_with_ai(raw_text: str) -> Optional[ResumeData]:
 
     try:
         genai.configure(api_key=GOOGLE_API_KEY)
-        model = genai.GenerativeModel('gemini-1.5-flash') # Using stable model name
+        model = genai.GenerativeModel('gemini-2.5-flash') # Using stable model name
 
         prompt = f"""
         Extract the following details from the resume text below into JSON format:
@@ -809,6 +809,7 @@ if uploaded_files and GOOGLE_API_KEY:
                 file_name="resume_report.csv",
                 mime="text/csv"
             )
+
 
 
 
