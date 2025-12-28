@@ -3000,30 +3000,162 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ==========================================
-# 2. CSS STYLING (FILE NAME COLOR FIX)
-# ==========================================
-st.markdown("""
-<style>
+# # ==========================================
+# # 2. CSS STYLING (FILE NAME COLOR FIX)
+# # ==========================================
+# st.markdown("""
+# <style>
+# @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+# /* GLOBAL DARK THEME */
+# .stApp {
+#     background: radial-gradient(circle at top left, #1e1e2f, #0a0a12);
+#     font-family: 'Outfit', sans-serif;
+#     color: #ffffff;
+# }
+
+# /* Force all normal text white */
+# p, h1, h2, h3, h4, h5, h6, li, span, div {
+#     color: #ffffff;
+# }
+
+# /* Hide Streamlit UI */
+# #MainMenu, footer, header {visibility: hidden;}
+# section[data-testid="stSidebar"] {display: none;}
+
+# /* FILE UPLOADER */
+# .stFileUploader {
+#     background: rgba(255, 255, 255, 0.05);
+#     border: 2px dashed #5b5b70;
+#     border-radius: 15px;
+#     padding: 2rem;
+# }
+
+# /* FORCE uploaded filename to PURE WHITE on dark background */
+# div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileName"],
+# div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileName"] * {
+#     color: #ffffff !important;
+#     opacity: 1 !important;
+#     filter: none !important;
+# }
+
+# /* File size text (98.9KB) */
+# div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileSize"] {
+#     color: #dcdcdc !important;
+# }
+
+
+
+# /* FORCE uploaded file name to WHITE (dark background fix) */
+# span[data-testid="fileUploaderFileName"],
+# span[data-testid="fileUploaderFileName"] * {
+#     color: #ffffff !important;
+# }
+
+# /* File size text (e.g. 98.9KB) */
+# span[data-testid="fileUploaderFileSize"] {
+#     color: #d0d0d0 !important;
+# }
+
+
+
+
+# /* Upload icon */
+# div[data-testid="stFileUploader"] svg {
+#     fill: #40d0ff !important;
+# }
+
+# /* Browse button */
+# .stFileUploader button {
+#     background-color: #40d0ff !important;
+#     color: #000000 !important;
+#     font-weight: 700;
+#     border: none;
+# }
+
+# /* HERO */
+# .hero-container {
+#     text-align: center;
+#     padding: 3rem 2rem;
+#     background: rgba(30, 30, 46, 0.8);
+#     border-radius: 20px;
+#     margin-bottom: 2rem;
+# }
+
+# .hero-title {
+#     font-size: 3.5rem;
+#     font-weight: 800;
+#     background: linear-gradient(90deg, #40d0ff, #0080ff);
+#     -webkit-background-clip: text;
+#     -webkit-text-fill-color: transparent;
+# }
+
+# /* METRICS */
+# div[data-testid="stMetric"] {
+#     background: rgba(40, 40, 60, 0.9);
+#     border-radius: 12px;
+#     padding: 15px;
+# }
+
+# div[data-testid="stMetricLabel"] {
+#     color: #a0c0ff !important;
+# }
+
+# div[data-testid="stMetricValue"] {
+#     color: #ffffff !important;
+# }
+
+# /* TABLE */
+# div[data-testid="stDataFrame"] {
+#     background: rgba(30, 30, 46, 0.8);
+#     border-radius: 10px;
+# }
+
+# div[data-testid="stDataFrame"] th {
+#     background-color: #2a2a3e !important;
+#     color: #ffffff !important;
+# }
+
+# div[data-testid="stDataFrame"] td {
+#     color: #e0e0e0 !important;
+# }
+
+# /* PRIMARY BUTTON */
+# div.stButton > button {
+#     background: linear-gradient(90deg, #00c6ff, #0072ff);
+#     color: white !important;
+#     font-weight: 700;
+#     padding: 0.8rem 3rem;
+#     border-radius: 50px;
+#     border: none;
+# }
+# </style>
+# """, unsafe_allow_html=True)
+
+
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
+/* ============================= */
 /* GLOBAL DARK THEME */
+/* ============================= */
 .stApp {
     background: radial-gradient(circle at top left, #1e1e2f, #0a0a12);
     font-family: 'Outfit', sans-serif;
     color: #ffffff;
 }
 
-/* Force all normal text white */
+/* Force all text white */
 p, h1, h2, h3, h4, h5, h6, li, span, div {
     color: #ffffff;
 }
 
-/* Hide Streamlit UI */
-#MainMenu, footer, header {visibility: hidden;}
-section[data-testid="stSidebar"] {display: none;}
+/* Hide default Streamlit UI */
+#MainMenu, footer, header { visibility: hidden; }
+section[data-testid="stSidebar"] { display: none; }
 
+/* ============================= */
 /* FILE UPLOADER */
+/* ============================= */
 .stFileUploader {
     background: rgba(255, 255, 255, 0.05);
     border: 2px dashed #5b5b70;
@@ -3031,45 +3163,17 @@ section[data-testid="stSidebar"] {display: none;}
     padding: 2rem;
 }
 
-# /* ✅ FINAL & CORRECT FIX — FILE NAME TEXT */
-# span[data-testid="fileUploaderFileName"] {
-#     color: #ffffff !important;
-#     font-weight: 600 !important;
-# }
-
-# /* File size text (98.9KB) */
-# span[data-testid="fileUploaderFileSize"] {
-#     color: #cfcfcf !important;
-# }
-
-/* FORCE uploaded filename to PURE WHITE on dark background */
+/* ✅ FIX: Uploaded file name (resume.pdf) */
 div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileName"],
 div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileName"] * {
     color: #ffffff !important;
     opacity: 1 !important;
-    filter: none !important;
 }
 
 /* File size text (98.9KB) */
 div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileSize"] {
     color: #dcdcdc !important;
 }
-
-
-
-/* FORCE uploaded file name to WHITE (dark background fix) */
-span[data-testid="fileUploaderFileName"],
-span[data-testid="fileUploaderFileName"] * {
-    color: #ffffff !important;
-}
-
-/* File size text (e.g. 98.9KB) */
-span[data-testid="fileUploaderFileSize"] {
-    color: #d0d0d0 !important;
-}
-
-
-
 
 /* Upload icon */
 div[data-testid="stFileUploader"] svg {
@@ -3084,7 +3188,9 @@ div[data-testid="stFileUploader"] svg {
     border: none;
 }
 
-/* HERO */
+/* ============================= */
+/* HERO SECTION */
+/* ============================= */
 .hero-container {
     text-align: center;
     padding: 3rem 2rem;
@@ -3101,7 +3207,9 @@ div[data-testid="stFileUploader"] svg {
     -webkit-text-fill-color: transparent;
 }
 
-/* METRICS */
+/* ============================= */
+/* METRIC CARDS */
+/* ============================= */
 div[data-testid="stMetric"] {
     background: rgba(40, 40, 60, 0.9);
     border-radius: 12px;
@@ -3116,10 +3224,13 @@ div[data-testid="stMetricValue"] {
     color: #ffffff !important;
 }
 
-/* TABLE */
+/* ============================= */
+/* DATA TABLE */
+/* ============================= */
 div[data-testid="stDataFrame"] {
     background: rgba(30, 30, 46, 0.8);
     border-radius: 10px;
+    padding: 10px;
 }
 
 div[data-testid="stDataFrame"] th {
@@ -3131,17 +3242,18 @@ div[data-testid="stDataFrame"] td {
     color: #e0e0e0 !important;
 }
 
+/* ============================= */
 /* PRIMARY BUTTON */
+/* ============================= */
 div.stButton > button {
     background: linear-gradient(90deg, #00c6ff, #0072ff);
-    color: white !important;
+    color: #ffffff !important;
     font-weight: 700;
     padding: 0.8rem 3rem;
     border-radius: 50px;
     border: none;
 }
-</style>
-""", unsafe_allow_html=True)
+
 
 # ==========================================
 # 3. SETUP & LOGIC
@@ -3227,6 +3339,7 @@ if uploaded_files:
     c1, c2, c3 = st.columns([1,1,1])
     with c2:
         start_process = st.button("🚀 IGNITE ANALYSIS", use_container_width=True)
+
 
 
 
