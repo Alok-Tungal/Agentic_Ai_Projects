@@ -679,129 +679,181 @@ st.set_page_config(
 # ==========================================
 # 2. ADVANCED CSS (HIGH CONTRAST FIX)
 # ==========================================
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+# st.markdown("""
+# <style>
+#     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
     
-    /* GLOBAL TEXT COLOR FIX */
-    .stApp {
-        background: radial-gradient(circle at top left, #1e1e2f, #0a0a12);
-        color: #ffffff !important; /* Force white text everywhere */
-        font-family: 'Outfit', sans-serif;
-    }
+#     /* GLOBAL TEXT COLOR FIX */
+#     .stApp {
+#         background: radial-gradient(circle at top left, #1e1e2f, #0a0a12);
+#         color: #ffffff !important; /* Force white text everywhere */
+#         font-family: 'Outfit', sans-serif;
+#     }
     
-    p, h1, h2, h3, h4, h5, h6, span, div {
-        color: #e0e0e0;
-    }
+#     p, h1, h2, h3, h4, h5, h6, span, div {
+#         color: #e0e0e0;
+#     }
     
-    /* HIDE DEFAULT STREAMLIT UI */
-    #MainMenu, footer, header {visibility: hidden;}
-    section[data-testid="stSidebar"] {display: none;}
+#     /* HIDE DEFAULT STREAMLIT UI */
+#     #MainMenu, footer, header {visibility: hidden;}
+#     section[data-testid="stSidebar"] {display: none;}
     
-    /* HERO SECTION */
-    .hero-container {
-        text-align: center;
-        padding: 4rem 2rem;
-        background: rgba(30, 30, 46, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 24px;
-        backdrop-filter: blur(15px);
-        margin-bottom: 3rem;
-        box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4);
-    }
-    .hero-title {
-        font-size: 4rem;
-        font-weight: 800;
-        background: linear-gradient(90deg, #40d0ff, #0080ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 1rem;
-    }
-    .hero-subtitle {
-        font-size: 1.4rem;
-        color: #ffffff !important; /* Force white */
-        font-weight: 400;
-    }
+#     /* HERO SECTION */
+#     .hero-container {
+#         text-align: center;
+#         padding: 4rem 2rem;
+#         background: rgba(30, 30, 46, 0.8);
+#         border: 1px solid rgba(255, 255, 255, 0.1);
+#         border-radius: 24px;
+#         backdrop-filter: blur(15px);
+#         margin-bottom: 3rem;
+#         box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.4);
+#     }
+#     .hero-title {
+#         font-size: 4rem;
+#         font-weight: 800;
+#         background: linear-gradient(90deg, #40d0ff, #0080ff);
+#         -webkit-background-clip: text;
+#         -webkit-text-fill-color: transparent;
+#         margin-bottom: 1rem;
+#     }
+#     .hero-subtitle {
+#         font-size: 1.4rem;
+#         color: #ffffff !important; /* Force white */
+#         font-weight: 400;
+#     }
 
-    /* UPLOAD ZONE - TEXT VISIBILITY FIX */
-    .stFileUploader {
-        background: rgba(255, 255, 255, 0.05);
-        border: 2px dashed #5b5b70;
-        border-radius: 20px;
-        padding: 2rem;
-        text-align: center;
-    }
-    .stFileUploader label {
-        color: #ffffff !important;
-        font-size: 1.1rem;
-    }
-    .stFileUploader div[data-testid="stMarkdownContainer"] p {
-        color: #cccccc !important; /* Small help text */
-    }
+#     /* UPLOAD ZONE - TEXT VISIBILITY FIX */
+#     .stFileUploader {
+#         background: rgba(255, 255, 255, 0.05);
+#         border: 2px dashed #5b5b70;
+#         border-radius: 20px;
+#         padding: 2rem;
+#         text-align: center;
+#     }
+#     .stFileUploader label {
+#         color: #ffffff !important;
+#         font-size: 1.1rem;
+#     }
+#     .stFileUploader div[data-testid="stMarkdownContainer"] p {
+#         color: #cccccc !important; /* Small help text */
+#     }
 
-    /* METRIC CARDS - LABEL VISIBILITY FIX */
-    div[data-testid="stMetric"] {
-        background: rgba(40, 40, 60, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 16px;
-        padding: 20px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-    div[data-testid="stMetricLabel"] {
-        color: #b0b0ff !important; /* Light Blue for Labels */
-        font-size: 1rem;
-        font-weight: 600;
-    }
-    div[data-testid="stMetricValue"] {
-        color: #ffffff !important; /* Pure White for Numbers */
-        font-size: 1.8rem;
-        font-weight: 700;
-    }
+#     /* METRIC CARDS - LABEL VISIBILITY FIX */
+#     div[data-testid="stMetric"] {
+#         background: rgba(40, 40, 60, 0.8);
+#         border: 1px solid rgba(255, 255, 255, 0.1);
+#         border-radius: 16px;
+#         padding: 20px;
+#         box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+#     }
+#     div[data-testid="stMetricLabel"] {
+#         color: #b0b0ff !important; /* Light Blue for Labels */
+#         font-size: 1rem;
+#         font-weight: 600;
+#     }
+#     div[data-testid="stMetricValue"] {
+#         color: #ffffff !important; /* Pure White for Numbers */
+#         font-size: 1.8rem;
+#         font-weight: 700;
+#     }
     
-    /* GLOWING BUTTON */
-    div.stButton > button {
-        background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
-        color: white !important;
-        font-weight: 700;
-        padding: 1rem 3rem;
-        border-radius: 50px;
-        border: none;
-        box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
-        transition: all 0.3s ease;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
-    div.stButton > button:hover {
-        box-shadow: 0 0 35px rgba(0, 114, 255, 0.9);
-        transform: scale(1.03);
-    }
+#     /* GLOWING BUTTON */
+#     div.stButton > button {
+#         background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+#         color: white !important;
+#         font-weight: 700;
+#         padding: 1rem 3rem;
+#         border-radius: 50px;
+#         border: none;
+#         box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
+#         transition: all 0.3s ease;
+#         text-transform: uppercase;
+#         letter-spacing: 2px;
+#     }
+#     div.stButton > button:hover {
+#         box-shadow: 0 0 35px rgba(0, 114, 255, 0.9);
+#         transform: scale(1.03);
+#     }
 
-    /* DATAFRAME & TABLE FIX */
-    div[data-testid="stDataFrame"] {
-        background: rgba(30, 30, 46, 0.6);
-        border-radius: 16px;
-        padding: 10px;
-    }
-    /* Force table header text to be white */
-    div[data-testid="stDataFrame"] th {
-        color: #ffffff !important;
-        background-color: #2a2a3e !important;
-    }
-    /* Force table body text to be white */
-    div[data-testid="stDataFrame"] td {
-        color: #e0e0e0 !important;
-    }
+#     /* DATAFRAME & TABLE FIX */
+#     div[data-testid="stDataFrame"] {
+#         background: rgba(30, 30, 46, 0.6);
+#         border-radius: 16px;
+#         padding: 10px;
+#     }
+#     /* Force table header text to be white */
+#     div[data-testid="stDataFrame"] th {
+#         color: #ffffff !important;
+#         background-color: #2a2a3e !important;
+#     }
+#     /* Force table body text to be white */
+#     div[data-testid="stDataFrame"] td {
+#         color: #e0e0e0 !important;
+#     }
 
-    /* TABS */
-    .stTabs [data-baseweb="tab"] {
-        color: #a0a0b0;
-    }
-    .stTabs [aria-selected="true"] {
-        color: #ffffff !important;
-        background-color: rgba(64, 208, 255, 0.2);
-    }
-</style>
-""", unsafe_allow_html=True)
+#     /* TABS */
+#     .stTabs [data-baseweb="tab"] {
+#         color: #a0a0b0;
+#     }
+#     .stTabs [aria-selected="true"] {
+#         color: #ffffff !important;
+#         background-color: rgba(64, 208, 255, 0.2);
+#     }
+# </style>
+# """, unsafe_allow_html=True)
+
+
+
+/* ============================= */
+/* CONTACT INFO & LINK FIX */
+/* ============================= */
+
+/* Email & LinkedIn links */
+a, a:visited {
+    color: #40d0ff !important;   /* Neon blue */
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a:hover {
+    color: #7fe7ff !important;
+    text-decoration: underline;
+}
+
+/* JSON Viewer Fix */
+div[data-testid="stJson"] span {
+    color: #ffffff !important;
+}
+
+/* JSON keys */
+div[data-testid="stJson"] span[style*="color: rgb(160"] {
+    color: #40d0ff !important;
+    font-weight: 600;
+}
+
+/* DATAFRAME LINK COLUMNS (Email / LinkedIn) */
+div[data-testid="stDataFrame"] a {
+    color: #40d0ff !important;
+    font-weight: 500;
+}
+
+/* DATAFRAME NULL / EMPTY TEXT */
+div[data-testid="stDataFrame"] td:empty::after {
+    content: "—";
+    color: #888888;
+}
+
+/* DOWNLOAD BUTTON TEXT FIX */
+div[data-testid="stDownloadButton"] button {
+    color: #ffffff !important;
+}
+
+/* STATUS / INFO / SUCCESS TEXT */
+div[data-testid="stAlert"] p {
+    color: #ffffff !important;
+}
+
 
 # ==========================================
 # 3. SETUP & LOGIC
@@ -987,7 +1039,3 @@ if uploaded_files:
                     mime="text/csv",
                     use_container_width=True
                 )
-
-
-
-
