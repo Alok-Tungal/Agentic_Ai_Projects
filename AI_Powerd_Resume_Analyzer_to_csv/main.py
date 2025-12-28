@@ -426,201 +426,202 @@
 
 
 
-# import streamlit as st
-# import pandas as pd
-# import pdfplumber
-# import io
-# import json
-# import os
-# from dotenv import load_dotenv
-# import google.generativeai as genai
-# from pydantic import BaseModel, Field
-# from typing import List, Optional
+import streamlit as st
+import pandas as pd
+import pdfplumber
+import io
+import json
+import os
+from dotenv import load_dotenv
+import google.generativeai as genai
+from pydantic import BaseModel, Field
+from typing import List, Optional
 
-# # ==========================================
-# # 1. CONFIGURATION (LOAD FROM .ENV)
-# # ==========================================
+# ==========================================
+# 1. CONFIGURATION (LOAD FROM .ENV)
+# ==========================================
 
-# # Load environment variables from the .env file
-# # load_dotenv()
+# Load environment variables from the .env file
+# load_dotenv()
 
-# # # Fetch the key securely
-# # API_KEY = os.getenv("gemini")
+# # Fetch the key securely
+# API_KEY = os.getenv("gemini")
 
-# GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
 
-# if not GOOGLE_API_KEY:
-#     st.error("Google API Key not found. Please set it in environment variables.")
-#     st.stop()
+if not GOOGLE_API_KEY:
+    st.error("Google API Key not found. Please set it in environment variables.")
+    st.stop()
 
-# # ==========================================
-# # 2. DATA STRUCTURE
-# # ==========================================
+# ==========================================
+# 2. DATA STRUCTURE
+# ==========================================
 
-# class ContactInfo(BaseModel):
-#     name: Optional[str] = Field(None, description="Full Name")
-#     email: Optional[str] = Field(None, description="Email Address")
-#     phone: Optional[str] = Field(None, description="Phone Number")
-#     linkedin: Optional[str] = Field(None, description="LinkedIn URL")
+class ContactInfo(BaseModel):
+    name: Optional[str] = Field(None, description="Full Name")
+    email: Optional[str] = Field(None, description="Email Address")
+    phone: Optional[str] = Field(None, description="Phone Number")
+    linkedin: Optional[str] = Field(None, description="LinkedIn URL")
 
-# class Project(BaseModel):
-#     title: str = Field(..., description="Project Title")
-#     tech_stack: Optional[str] = Field(None, description="Tech used")
+class Project(BaseModel):
+    title: str = Field(..., description="Project Title")
+    tech_stack: Optional[str] = Field(None, description="Tech used")
 
-# class ResumeData(BaseModel):
-#     contact: ContactInfo
-#     skills: List[str] = Field(default_factory=list, description="List of all technical skills")
-#     projects: List[Project] = Field(default_factory=list, description="ALL projects found in resume")
-#     education_degree: Optional[str] = Field(None, description="Latest Degree Name")
-#     education_college: Optional[str] = Field(None, description="College Name")
-#     years_experience: Optional[str] = Field(None, description="Total years of experience or 'Fresher'")
+class ResumeData(BaseModel):
+    contact: ContactInfo
+    skills: List[str] = Field(default_factory=list, description="List of all technical skills")
+    projects: List[Project] = Field(default_factory=list, description="ALL projects found in resume")
+    education_degree: Optional[str] = Field(None, description="Latest Degree Name")
+    education_college: Optional[str] = Field(None, description="College Name")
+    years_experience: Optional[str] = Field(None, description="Total years of experience or 'Fresher'")
 
-# # ==========================================
-# # 3. CORE LOGIC
-# # ==========================================
+# ==========================================
+# 3. CORE LOGIC
+# ==========================================
 
-# def extract_text_from_pdf(file_bytes):
-#     """Extracts text from PDF bytes."""
-#     text = ""
-#     try:
-#         with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
-#             for page in pdf.pages:
-#                 extracted = page.extract_text()
-#                 if extracted:
-#                     text += extracted + "\n"
-#     except Exception as e:
-#         st.error(f"Error reading PDF: {e}")
-#     return text
+def extract_text_from_pdf(file_bytes):
+    """Extracts text from PDF bytes."""
+    text = ""
+    try:
+        with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+            for page in pdf.pages:
+                extracted = page.extract_text()
+                if extracted:
+                    text += extracted + "\n"
+    except Exception as e:
+        st.error(f"Error reading PDF: {e}")
+    return text
 
-# def analyze_resume_with_ai(raw_text: str) -> Optional[ResumeData]:
-#     """
-#     Sends text to Gemini using the key from .env
-#     """
-#     if not API_KEY:
-#         st.error("❌ API Key Missing! Please create a .env file with GOOGLE_API_KEY=...")
-#         return None
+def analyze_resume_with_ai(raw_text: str) -> Optional[ResumeData]:
+    """
+    Sends text to Gemini using the key from .env
+    """
+    if not API_KEY:
+        st.error("❌ API Key Missing! Please create a .env file with GOOGLE_API_KEY=...")
+        return None
 
-#     try:
-#         genai.configure(api_key=API_KEY)
-#         model = genai.GenerativeModel('gemini-2.5-flash-lite')
+    try:
+        genai.configure(api_key=API_KEY)
+        model = genai.GenerativeModel('gemini-2.5-flash-lite')
 
-#         # UPDATED PROMPT: STRICT INSTRUCTION TO EXTRACT ALL PROJECTS
-#         prompt = f"""
-#         Extract the following details from the resume text below into JSON format:
-#         1. Contact Info (Name, Email, Phone, LinkedIn)
-#         2. Latest Education (Degree, College)
-#         3. All Technical Skills (as a simple list of strings)
-#         4. ALL Projects (Title and Tech Stack only). 
-#            **CRITICAL INSTRUCTION: Do not limit the number of projects. If the resume has 4 projects, extract 4. If it has 10, extract 10. Extract EVERY project listed.**
-#         5. Years of Experience (or "Fresher")
+        # UPDATED PROMPT: STRICT INSTRUCTION TO EXTRACT ALL PROJECTS
+        prompt = f"""
+        Extract the following details from the resume text below into JSON format:
+        1. Contact Info (Name, Email, Phone, LinkedIn)
+        2. Latest Education (Degree, College)
+        3. All Technical Skills (as a simple list of strings)
+        4. ALL Projects (Title and Tech Stack only). 
+           **CRITICAL INSTRUCTION: Do not limit the number of projects. If the resume has 4 projects, extract 4. If it has 10, extract 10. Extract EVERY project listed.**
+        5. Years of Experience (or "Fresher")
 
-#         RESUME TEXT:
-#         {raw_text}
+        RESUME TEXT:
+        {raw_text}
         
-#         Return strictly valid JSON matching this schema:
-#         {{
-#             "contact": {{ "name": "", "email": "", "phone": "", "linkedin": "" }},
-#             "education_degree": "",
-#             "education_college": "",
-#             "skills": ["Python", "SQL", ...],
-#             "projects": [
-#                 {{ "title": "Project 1", "tech_stack": "Python, Pandas" }},
-#                 {{ "title": "Project 2", "tech_stack": "React, Node" }},
-#                 ... (Extract ALL projects found)
-#             ],
-#             "years_experience": ""
-#         }}
-#         """
+        Return strictly valid JSON matching this schema:
+        {{
+            "contact": {{ "name": "", "email": "", "phone": "", "linkedin": "" }},
+            "education_degree": "",
+            "education_college": "",
+            "skills": ["Python", "SQL", ...],
+            "projects": [
+                {{ "title": "Project 1", "tech_stack": "Python, Pandas" }},
+                {{ "title": "Project 2", "tech_stack": "React, Node" }},
+                ... (Extract ALL projects found)
+            ],
+            "years_experience": ""
+        }}
+        """
 
-#         response = model.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
-#         json_data = json.loads(response.text)
-#         return ResumeData(**json_data)
+        response = model.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
+        json_data = json.loads(response.text)
+        return ResumeData(**json_data)
 
-#     except Exception as e:
-#         st.error(f"AI Error: {e}")
-#         return None
+    except Exception as e:
+        st.error(f"AI Error: {e}")
+        return None
 
-# def convert_to_csv(resumes: List[ResumeData]):
-#     """
-#     Converts the list of Resume objects into a CSV string.
-#     """
-#     csv_rows = []
-#     for r in resumes:
-#         # Flatten ALL projects into a single string for the CSV cell
-#         # Format: "Title (Tech) | Title (Tech)"
-#         # This loop will now include every single project found in the list
-#         project_str = " | ".join([f"{p.title} ({p.tech_stack})" for p in r.projects])
+def convert_to_csv(resumes: List[ResumeData]):
+    """
+    Converts the list of Resume objects into a CSV string.
+    """
+    csv_rows = []
+    for r in resumes:
+        # Flatten ALL projects into a single string for the CSV cell
+        # Format: "Title (Tech) | Title (Tech)"
+        # This loop will now include every single project found in the list
+        project_str = " | ".join([f"{p.title} ({p.tech_stack})" for p in r.projects])
         
-#         csv_rows.append({
-#             "Name": r.contact.name,
-#             "Email": r.contact.email,
-#             "Phone": r.contact.phone,
-#             "LinkedIn": r.contact.linkedin,
-#             "Degree": r.education_degree,
-#             "College": r.education_college,
-#             "Experience": r.years_experience,
-#             "Skills": ", ".join(r.skills[:15]), # Increased limit to show more skills
-#             "Total Projects": len(r.projects), # Added column to verify count
-#             "Projects Details": project_str
-#         })
+        csv_rows.append({
+            "Name": r.contact.name,
+            "Email": r.contact.email,
+            "Phone": r.contact.phone,
+            "LinkedIn": r.contact.linkedin,
+            "Degree": r.education_degree,
+            "College": r.education_college,
+            "Experience": r.years_experience,
+            "Skills": ", ".join(r.skills[:15]), # Increased limit to show more skills
+            "Total Projects": len(r.projects), # Added column to verify count
+            "Projects Details": project_str
+        })
     
-#     df = pd.DataFrame(csv_rows)
-#     return df.to_csv(index=False).encode('utf-8')
+    df = pd.DataFrame(csv_rows)
+    return df.to_csv(index=False).encode('utf-8')
 
-# # ==========================================
-# # 4. STREAMLIT UI
-# # ==========================================
+# ==========================================
+# 4. STREAMLIT UI
+# ==========================================
 
-# st.set_page_config(page_title="Resume to CSV", layout="wide")
+st.set_page_config(page_title="Resume to CSV", layout="wide")
 
-# st.title("📄 Secure Resume Batch Processor")
-# st.markdown("Upload resumes. Extracts **ALL** projects and details.")
+st.title("📄 Secure Resume Batch Processor")
+st.markdown("Upload resumes. Extracts **ALL** projects and details.")
 
-# # # Check for API Key on startup
-# # if not GOOGLE_API_KEY: 
-# #     st.warning("⚠️ No API Key found. Please check your .env file.")
-# # else:
-# #     st.success("✅ API Key Loaded Securely")
+# # Check for API Key on startup
+# if not GOOGLE_API_KEY: 
+#     st.warning("⚠️ No API Key found. Please check your .env file.")
+# else:
+#     st.success("✅ API Key Loaded Securely")
 
-# # uploaded_files = st.file_uploader("Upload PDF Resumes", type=["pdf"], accept_multiple_files=True)
+# uploaded_files = st.file_uploader("Upload PDF Resumes", type=["pdf"], accept_multiple_files=True)
 
-# if uploaded_files and GOOGLE_API_KEY:
-#     if st.button(f"Process {len(uploaded_files)} Files"):
+if uploaded_files and GOOGLE_API_KEY:
+    if st.button(f"Process {len(uploaded_files)} Files"):
         
-#         results = []
-#         progress_bar = st.progress(0)
+        results = []
+        progress_bar = st.progress(0)
         
-#         for idx, file in enumerate(uploaded_files):
-#             # 1. Read
-#             file_bytes = file.read()
-#             raw_text = extract_text_from_pdf(file_bytes)
+        for idx, file in enumerate(uploaded_files):
+            # 1. Read
+            file_bytes = file.read()
+            raw_text = extract_text_from_pdf(file_bytes)
             
-#             # 2. Analyze
-#             with st.spinner(f"Reading {file.name}..."):
-#                 data = analyze_resume_with_ai(raw_text)
-#                 if data:
-#                     results.append(data)
+            # 2. Analyze
+            with st.spinner(f"Reading {file.name}..."):
+                data = analyze_resume_with_ai(raw_text)
+                if data:
+                    results.append(data)
             
-#             progress_bar.progress((idx + 1) / len(uploaded_files))
+            progress_bar.progress((idx + 1) / len(uploaded_files))
         
-#         if results:
-#             st.success("✅ Done! All projects extracted.")
+        if results:
+            st.success("✅ Done! All projects extracted.")
             
-#             # Convert to CSV
-#             csv_data = convert_to_csv(results)
+            # Convert to CSV
+            csv_data = convert_to_csv(results)
             
-#             # Show Preview
-#             df_preview = pd.read_csv(io.BytesIO(csv_data))
-#             st.dataframe(df_preview, use_container_width=True)
+            # Show Preview
+            df_preview = pd.read_csv(io.BytesIO(csv_data))
+            st.dataframe(df_preview, use_container_width=True)
             
-#             # Download Button
-#             st.download_button(
-#                 label="📥 Download CSV Report",
-#                 data=csv_data,
-#                 file_name="resume_report.csv",
-#                 mime="text/csv"
+            # Download Button
+            st.download_button(
+                label="📥 Download CSV Report",
+                data=csv_data,
+                file_name="resume_report.csv",
+                mime="text/csv"
 
-#             )
+            )
+
 
 
 
