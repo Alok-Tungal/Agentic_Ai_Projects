@@ -313,7 +313,7 @@ st.markdown("""
     
     /* BACKGROUND & FONT */
     .stApp {
-        /* A smoother, slightly lighter dark gradient for better contrast */
+        /* A smoother, slightly lighter white gradient for better contrast */
         background: radial-gradient(circle at top left, #2a2a3e, #12121a);
         color: #f0f0f0; /* Brighter main text color */
         font-family: 'Outfit', sans-serif;
@@ -650,6 +650,7 @@ if uploaded_files:
                     mime="text/csv",
                     use_container_width=True
                 )
+
 
 
 
