@@ -577,14 +577,14 @@ st.title("📄 Secure Resume Batch Processor")
 st.markdown("Upload resumes. Extracts **ALL** projects and details.")
 
 # Check for API Key on startup
-if not API_KEY:
+if not GOOGLE_API_KEY:
     st.warning("⚠️ No API Key found. Please check your .env file.")
 else:
     st.success("✅ API Key Loaded Securely")
 
 uploaded_files = st.file_uploader("Upload PDF Resumes", type=["pdf"], accept_multiple_files=True)
 
-if uploaded_files and API_KEY:
+if uploaded_files and GOOGLE_API_KEY:
     if st.button(f"Process {len(uploaded_files)} Files"):
         
         results = []
@@ -621,3 +621,4 @@ if uploaded_files and API_KEY:
                 mime="text/csv"
 
             )
+
