@@ -989,309 +989,310 @@ if uploaded_files:
 
 
 
-import streamlit as st
-import pandas as pd
-import pdfplumber
-import io
-import json
-import os
-import time
-from dotenv import load_dotenv
-import google.generativeai as genai
-from pydantic import BaseModel, Field
-from typing import List, Optional
+# import streamlit as st
+# import pandas as pd
+# import pdfplumber
+# import io
+# import json
+# import os
+# import time
+# from dotenv import load_dotenv
+# import google.generativeai as genai
+# from pydantic import BaseModel, Field
+# from typing import List, Optional
 
-# ==========================================
-# 1. ADVANCED PAGE CONFIG
-# ==========================================
-st.set_page_config(
-    page_title="Resume Intelligence A",
-    page_icon="🧠",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
+# # ==========================================
+# # 1. ADVANCED PAGE CONFIG
+# # ==========================================
+# st.set_page_config(
+#     page_title="Resume Intelligence A",
+#     page_icon="🧠",
+#     layout="wide",
+#     initial_sidebar_state="collapsed"
+# )
 
-# ==========================================
-# 2. ADVANCED CSS (DARK MODE VISIBILITY FIX)
-# ==========================================
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+# # ==========================================
+# # 2. ADVANCED CSS (DARK MODE VISIBILITY FIX)
+# # ==========================================
+# st.markdown("""
+# <style>
+# @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-/* GLOBAL */
-.stApp {
-    background: radial-gradient(circle at top left, #1e1e2f, #0a0a12);
-    color: #ffffff !important;
-    font-family: 'Outfit', sans-serif;
-}
+# /* GLOBAL */
+# .stApp {
+#     background: radial-gradient(circle at top left, #1e1e2f, #0a0a12);
+#     color: #ffffff !important;
+#     font-family: 'Outfit', sans-serif;
+# }
 
-p, h1, h2, h3, h4, h5, h6, span, div {
-    color: #e6e6e6;
-}
+# p, h1, h2, h3, h4, h5, h6, span, div {
+#     color: #e6e6e6;
+# }
 
-/* HIDE STREAMLIT DEFAULT UI */
-#MainMenu, footer, header {visibility: hidden;}
-section[data-testid="stSidebar"] {display: none;}
+# /* HIDE STREAMLIT DEFAULT UI */
+# #MainMenu, footer, header {visibility: hidden;}
+# section[data-testid="stSidebar"] {display: none;}
 
-/* HERO */
-.hero-container {
-    text-align: center;
-    padding: 4rem 2rem;
-    background: rgba(30, 30, 46, 0.8);
-    border-radius: 24px;
-    margin-bottom: 3rem;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
-}
+# /* HERO */
+# .hero-container {
+#     text-align: center;
+#     padding: 4rem 2rem;
+#     background: rgba(30, 30, 46, 0.8);
+#     border-radius: 24px;
+#     margin-bottom: 3rem;
+#     box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+# }
 
-.hero-title {
-    font-size: 4rem;
-    font-weight: 800;
-    background: linear-gradient(90deg, #40d0ff, #0080ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+# .hero-title {
+#     font-size: 4rem;
+#     font-weight: 800;
+#     background: linear-gradient(90deg, #40d0ff, #0080ff);
+#     -webkit-background-clip: text;
+#     -webkit-text-fill-color: transparent;
+# }
 
-.hero-subtitle {
-    font-size: 1.4rem;
-    color: #ffffff !important;
-}
+# .hero-subtitle {
+#     font-size: 1.4rem;
+#     color: #ffffff !important;
+# }
 
-/* FILE UPLOADER */
-.stFileUploader {
-    background: rgba(255,255,255,0.05);
-    border: 2px dashed #5b5b70;
-    border-radius: 20px;
-    padding: 2rem;
-}
+# /* FILE UPLOADER */
+# .stFileUploader {
+#     background: rgba(255,255,255,0.05);
+#     border: 2px dashed #5b5b70;
+#     border-radius: 20px;
+#     padding: 2rem;
+# }
 
-.stFileUploader label {
-    color: #ffffff !important;
-    font-size: 1.1rem;
-}
+# .stFileUploader label {
+#     color: #ffffff !important;
+#     font-size: 1.1rem;
+# }
 
-.stFileUploader p {
-    color: #cccccc !important;
-}
+# .stFileUploader p {
+#     color: #cccccc !important;
+# }
 
-/* METRICS */
-div[data-testid="stMetric"] {
-    background: rgba(40,40,60,0.8);
-    border-radius: 16px;
-    padding: 20px;
-}
+# /* METRICS */
+# div[data-testid="stMetric"] {
+#     background: rgba(40,40,60,0.8);
+#     border-radius: 16px;
+#     padding: 20px;
+# }
 
-div[data-testid="stMetricLabel"] {
-    color: #9fb8ff !important;
-    font-weight: 600;
-}
+# div[data-testid="stMetricLabel"] {
+#     color: #9fb8ff !important;
+#     font-weight: 600;
+# }
 
-div[data-testid="stMetricValue"] {
-    color: #ffffff !important;
-    font-weight: 700;
-}
+# div[data-testid="stMetricValue"] {
+#     color: #ffffff !important;
+#     font-weight: 700;
+# }
 
-/* BUTTON */
-div.stButton > button {
-    background: linear-gradient(90deg, #00c6ff, #0072ff);
-    color: #ffffff !important;
-    font-weight: 700;
-    border-radius: 50px;
-    padding: 1rem 3rem;
-    border: none;
-}
+# /* BUTTON */
+# div.stButton > button {
+#     background: linear-gradient(90deg, #00c6ff, #0072ff);
+#     color: #ffffff !important;
+#     font-weight: 700;
+#     border-radius: 50px;
+#     padding: 1rem 3rem;
+#     border: none;
+# }
 
-/* LINKS (EMAIL / LINKEDIN FIX) */
-a, a:visited {
-    color: #40d0ff !important;
-    font-weight: 500;
-    text-decoration: none;
-}
+# /* LINKS (EMAIL / LINKEDIN FIX) */
+# a, a:visited {
+#     color: #40d0ff !important;
+#     font-weight: 500;
+#     text-decoration: none;
+# }
 
-a:hover {
-    color: #7fe7ff !important;
-    text-decoration: underline;
-}
+# a:hover {
+#     color: #7fe7ff !important;
+#     text-decoration: underline;
+# }
 
-/* DATAFRAME */
-div[data-testid="stDataFrame"] {
-    background: rgba(30,30,46,0.6);
-    border-radius: 16px;
-}
+# /* DATAFRAME */
+# div[data-testid="stDataFrame"] {
+#     background: rgba(30,30,46,0.6);
+#     border-radius: 16px;
+# }
 
-div[data-testid="stDataFrame"] th {
-    background: #2a2a3e !important;
-    color: #ffffff !important;
-}
+# div[data-testid="stDataFrame"] th {
+#     background: #2a2a3e !important;
+#     color: #ffffff !important;
+# }
 
-div[data-testid="stDataFrame"] td {
-    color: #e0e0e0 !important;
-}
+# div[data-testid="stDataFrame"] td {
+#     color: #e0e0e0 !important;
+# }
 
-div[data-testid="stDataFrame"] a {
-    color: #40d0ff !important;
-}
+# div[data-testid="stDataFrame"] a {
+#     color: #40d0ff !important;
+# }
 
-/* JSON VIEW */
-div[data-testid="stJson"] span {
-    color: #ffffff !important;
-}
+# /* JSON VIEW */
+# div[data-testid="stJson"] span {
+#     color: #ffffff !important;
+# }
 
-/* TABS */
-.stTabs [data-baseweb="tab"] {
-    color: #a0a0b0;
-}
+# /* TABS */
+# .stTabs [data-baseweb="tab"] {
+#     color: #a0a0b0;
+# }
 
-.stTabs [aria-selected="true"] {
-    color: #ffffff !important;
-    background-color: rgba(64,208,255,0.2);
-}
-</style>
-""", unsafe_allow_html=True)
+# .stTabs [aria-selected="true"] {
+#     color: #ffffff !important;
+#     background-color: rgba(64,208,255,0.2);
+# }
+# </style>
+# """, unsafe_allow_html=True)
 
-# ==========================================
-# 3. SETUP & LOGIC
-# ==========================================
-load_dotenv()
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
+# # ==========================================
+# # 3. SETUP & LOGIC
+# # ==========================================
+# load_dotenv()
+# GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
 
-class ContactInfo(BaseModel):
-    name: Optional[str]
-    email: Optional[str]
-    phone: Optional[str]
-    linkedin: Optional[str]
+# class ContactInfo(BaseModel):
+#     name: Optional[str]
+#     email: Optional[str]
+#     phone: Optional[str]
+#     linkedin: Optional[str]
 
-class Project(BaseModel):
-    title: str
-    tech_stack: Optional[str]
+# class Project(BaseModel):
+#     title: str
+#     tech_stack: Optional[str]
 
-class ResumeData(BaseModel):
-    contact: ContactInfo
-    skills: List[str] = []
-    projects: List[Project] = []
-    education_degree: Optional[str]
-    years_experience: Optional[str]
+# class ResumeData(BaseModel):
+#     contact: ContactInfo
+#     skills: List[str] = []
+#     projects: List[Project] = []
+#     education_degree: Optional[str]
+#     years_experience: Optional[str]
 
-def extract_text(file_bytes):
-    try:
-        with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
-            return "\n".join([p.extract_text() or "" for p in pdf.pages])
-    except:
-        return ""
+# def extract_text(file_bytes):
+#     try:
+#         with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+#             return "\n".join([p.extract_text() or "" for p in pdf.pages])
+#     except:
+#         return ""
 
-def analyze_resume(text):
-    if not GOOGLE_API_KEY:
-        return None
+# def analyze_resume(text):
+#     if not GOOGLE_API_KEY:
+#         return None
 
-    genai.configure(api_key=GOOGLE_API_KEY)
-    model = genai.GenerativeModel("gemini-2.5-flash")
+#     genai.configure(api_key=GOOGLE_API_KEY)
+#     model = genai.GenerativeModel("gemini-2.5-flash")
 
-    prompt = f"""
-    Analyze resume and return JSON.
+#     prompt = f"""
+#     Analyze resume and return JSON.
 
-    Extract:
-    Name, Email, Phone, LinkedIn,
-    Latest Degree, Experience (Years),
-    Skills, Projects.
+#     Extract:
+#     Name, Email, Phone, LinkedIn,
+#     Latest Degree, Experience (Years),
+#     Skills, Projects.
 
-    Resume:
-    {text[:8000]}
-    """
+#     Resume:
+#     {text[:8000]}
+#     """
 
-    try:
-        res = model.generate_content(
-            prompt,
-            generation_config={"response_mime_type": "application/json"}
-        )
-        return ResumeData(**json.loads(res.text))
-    except:
-        return None
+#     try:
+#         res = model.generate_content(
+#             prompt,
+#             generation_config={"response_mime_type": "application/json"}
+#         )
+#         return ResumeData(**json.loads(res.text))
+#     except:
+#         return None
 
-# ==========================================
-# 4. UI
-# ==========================================
-st.markdown("""
-<div class="hero-container">
-    <div class="hero-title">Resume Intelligence AI</div>
-    <div class="hero-subtitle">Upload Resumes • Extract Insights • Export Data</div>
-</div>
-""", unsafe_allow_html=True)
+# # ==========================================
+# # 4. UI
+# # ==========================================
+# st.markdown("""
+# <div class="hero-container">
+#     <div class="hero-title">Resume Intelligence AI</div>
+#     <div class="hero-subtitle">Upload Resumes • Extract Insights • Export Data</div>
+# </div>
+# """, unsafe_allow_html=True)
 
-if not GOOGLE_API_KEY:
-    st.error("🔒 API Key Missing")
-    st.stop()
+# if not GOOGLE_API_KEY:
+#     st.error("🔒 API Key Missing")
+#     st.stop()
 
-col1, col2, col3 = st.columns([1,3,1])
-with col2:
-    uploaded_files = st.file_uploader(
-        "📂 Drag & Drop PDF Resumes",
-        type=["pdf"],
-        accept_multiple_files=True
-    )
+# col1, col2, col3 = st.columns([1,3,1])
+# with col2:
+#     uploaded_files = st.file_uploader(
+#         "📂 Drag & Drop PDF Resumes",
+#         type=["pdf"],
+#         accept_multiple_files=True
+#     )
 
-if uploaded_files:
-    st.markdown("<br>", unsafe_allow_html=True)
-    c1, c2, c3 = st.columns([1,1,1])
-    with c2:
-        start = st.button("🚀 IGNITE ANALYSIS", use_container_width=True)
+# if uploaded_files:
+#     st.markdown("<br>", unsafe_allow_html=True)
+#     c1, c2, c3 = st.columns([1,1,1])
+#     with c2:
+#         start = st.button("🚀 IGNITE ANALYSIS", use_container_width=True)
 
-    if start:
-        results = []
-        progress = st.progress(0)
-        status = st.empty()
+#     if start:
+#         results = []
+#         progress = st.progress(0)
+#         status = st.empty()
 
-        for i, file in enumerate(uploaded_files):
-            status.info(f"Analyzing **{file.name}**")
-            text = extract_text(file.read())
-            if text:
-                data = analyze_resume(text)
-                if data:
-                    results.append(data)
+#         for i, file in enumerate(uploaded_files):
+#             status.info(f"Analyzing **{file.name}**")
+#             text = extract_text(file.read())
+#             if text:
+#                 data = analyze_resume(text)
+#                 if data:
+#                     results.append(data)
 
-            progress.progress((i+1)/len(uploaded_files))
-            time.sleep(0.05)
+#             progress.progress((i+1)/len(uploaded_files))
+#             time.sleep(0.05)
 
-        progress.empty()
-        status.empty()
+#         progress.empty()
+#         status.empty()
 
-        if results:
-            st.subheader("📊 Intelligence Report")
+#         if results:
+#             st.subheader("📊 Intelligence Report")
 
-            m1, m2, m3, m4 = st.columns(4)
-            m1.metric("Candidates", len(results))
-            m2.metric("Total Projects", sum(len(r.projects) for r in results))
-            m3.metric("Avg Experience", "N/A")
-            m4.metric("Success Rate", "100%")
+#             m1, m2, m3, m4 = st.columns(4)
+#             m1.metric("Candidates", len(results))
+#             m2.metric("Total Projects", sum(len(r.projects) for r in results))
+#             m3.metric("Avg Experience", "N/A")
+#             m4.metric("Success Rate", "100%")
 
-            rows = []
-            for r in results:
-                rows.append({
-                    "Name": r.contact.name,
-                    "Experience": r.years_experience,
-                    "Degree": r.education_degree,
-                    "Projects": " • ".join(p.title for p in r.projects),
-                    "Skills": ", ".join(r.skills[:5]),
-                    "Email": r.contact.email,
-                    "LinkedIn": r.contact.linkedin
-                })
+#             rows = []
+#             for r in results:
+#                 rows.append({
+#                     "Name": r.contact.name,
+#                     "Experience": r.years_experience,
+#                     "Degree": r.education_degree,
+#                     "Projects": " • ".join(p.title for p in r.projects),
+#                     "Skills": ", ".join(r.skills[:5]),
+#                     "Email": r.contact.email,
+#                     "LinkedIn": r.contact.linkedin
+#                 })
 
-            df = pd.DataFrame(rows)
+#             df = pd.DataFrame(rows)
 
-            tab1, tab2 = st.tabs(["📄 Table", "💾 JSON"])
+#             tab1, tab2 = st.tabs(["📄 Table", "💾 JSON"])
 
-            with tab1:
-                st.dataframe(df, use_container_width=True, height=500)
+#             with tab1:
+#                 st.dataframe(df, use_container_width=True, height=500)
 
-            with tab2:
-                st.json([r.dict() for r in results])
+#             with tab2:
+#                 st.json([r.dict() for r in results])
 
-            csv = df.to_csv(index=False).encode("utf-8")
-            st.download_button(
-                "📥 DOWNLOAD REPORT",
-                csv,
-                "Resume_Report.csv",
-                "text/csv",
-                use_container_width=True
-            )
+#             csv = df.to_csv(index=False).encode("utf-8")
+#             st.download_button(
+#                 "📥 DOWNLOAD REPORT",
+#                 csv,
+#                 "Resume_Report.csv",
+#                 "text/csv",
+#                 use_container_width=True
+#             )
+
 
 
 
