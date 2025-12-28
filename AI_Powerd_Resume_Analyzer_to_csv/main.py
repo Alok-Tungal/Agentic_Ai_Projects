@@ -1294,6 +1294,328 @@
 #             )
 
 
+# import streamlit as st
+# import pandas as pd
+# import pdfplumber
+# import io
+# import json
+# import os
+# import time
+# from dotenv import load_dotenv
+# import google.generativeai as genai
+# from pydantic import BaseModel, Field
+# from typing import List, Optional
+
+# # ==========================================
+# # 1. PAGE CONFIGURATION
+# # ==========================================
+# st.set_page_config(
+#     page_title="Resume Intelligence AI",
+#     page_icon="🧠",
+#     layout="wide",
+#     initial_sidebar_state="collapsed"
+# )
+
+# # ==========================================
+# # 2. HIGH-CONTRAST CSS (FIXING VISIBILITY ISSUES)
+# # ==========================================
+# st.markdown("""
+# <style>
+#     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+    
+#     /* 1. FORCE DARK BACKGROUND & WHITE TEXT GLOBAL */
+#     .stApp {
+#         background: radial-gradient(circle at top left, #1e1e2f, #0a0a12);
+#         font-family: 'Outfit', sans-serif;
+#     }
+    
+#     /* Force all basic text to be white */
+#     p, h1, h2, h3, h4, h5, h6, li, span {
+#         color: #ffffff !important;
+#     }
+    
+#     /* HIDE DEFAULT MENU */
+#     #MainMenu, footer, header {visibility: hidden;}
+#     section[data-testid="stSidebar"] {display: none;}
+    
+#     /* 2. HERO SECTION */
+#     .hero-container {
+#         text-align: center;
+#         padding: 3rem 2rem;
+#         background: rgba(30, 30, 46, 0.8);
+#         border: 1px solid rgba(255, 255, 255, 0.1);
+#         border-radius: 20px;
+#         backdrop-filter: blur(10px);
+#         margin-bottom: 2rem;
+#         box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+#     }
+#     .hero-title {
+#         font-size: 3.5rem !important;
+#         font-weight: 800 !important;
+#         background: linear-gradient(90deg, #40d0ff, #0080ff);
+#         -webkit-background-clip: text;
+#         -webkit-text-fill-color: transparent !important; /* Override white for gradient */
+#         color: transparent !important;
+#         margin-bottom: 0.5rem !important;
+#     }
+    
+#     /* 3. FIX: FILE UPLOADER VISIBILITY */
+#     .stFileUploader {
+#         background: rgba(255, 255, 255, 0.05);
+#         border: 2px dashed #5b5b70;
+#         border-radius: 15px;
+#         padding: 2rem;
+#     }
+#     /* This targets the "Drag and drop" text */
+#     .stFileUploader div[data-testid="stMarkdownContainer"] p {
+#         color: #ffffff !important;
+#     }
+#     /* This targets the uploaded filename (the invisible text you mentioned) */
+#     div[data-testid="stFileUploader"] div[role="listitem"] div {
+#         color: #ffffff !important; 
+#         font-weight: 500;
+#     }
+#     .stFileUploader button {
+#         color: #000000 !important; /* Button text needs to be black on white button */
+#         background-color: #40d0ff !important;
+#         border: none;
+#     }
+
+#     /* 4. FIX: METRIC CARDS VISIBILITY */
+#     div[data-testid="stMetric"] {
+#         background: rgba(40, 40, 60, 0.9);
+#         border: 1px solid #40d0ff;
+#         border-radius: 12px;
+#         padding: 15px;
+#         box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+#     }
+#     div[data-testid="stMetricLabel"] {
+#         color: #a0c0ff !important; /* Bright Blue Label */
+#         font-size: 1rem !important;
+#     }
+#     div[data-testid="stMetricValue"] {
+#         color: #ffffff !important; /* Pure White Value */
+#         font-size: 2rem !important;
+#     }
+    
+#     /* 5. FIX: TABLE VISIBILITY */
+#     div[data-testid="stDataFrame"] {
+#         background: rgba(30, 30, 46, 0.8);
+#         border-radius: 10px;
+#         padding: 10px;
+#     }
+#     /* Header background and text */
+#     div[data-testid="stDataFrame"] th {
+#         background-color: #2a2a3e !important;
+#         color: #ffffff !important; 
+#         font-size: 1rem !important;
+#     }
+#     /* Cell text */
+#     div[data-testid="stDataFrame"] td {
+#         color: #e0e0e0 !important;
+#     }
+
+#     /* BUTTON STYLING */
+#     div.stButton > button {
+#         background: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+#         color: white !important;
+#         font-weight: 700;
+#         padding: 0.8rem 3rem;
+#         border-radius: 50px;
+#         border: none;
+#         box-shadow: 0 0 15px rgba(0, 114, 255, 0.6);
+#         font-size: 1.1rem;
+#     }
+# </style>
+# """, unsafe_allow_html=True)
+
+# # ==========================================
+# # 3. SETUP & LOGIC
+# # ==========================================
+# load_dotenv()
+# GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
+
+# # --- DATA MODELS ---
+# class ContactInfo(BaseModel):
+#     name: Optional[str] = Field(None)
+#     email: Optional[str] = Field(None)
+#     phone: Optional[str] = Field(None)
+#     linkedin: Optional[str] = Field(None)
+
+# class Project(BaseModel):
+#     title: str
+#     tech_stack: Optional[str] = Field(None)
+
+# class ResumeData(BaseModel):
+#     contact: ContactInfo
+#     skills: List[str] = Field(default_factory=list)
+#     projects: List[Project] = Field(default_factory=list)
+#     education_degree: Optional[str] = Field(None)
+#     years_experience: Optional[str] = Field(None)
+
+# # --- HELPER FUNCTIONS ---
+# def extract_text(file_bytes):
+#     try:
+#         with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+#             return "\n".join([p.extract_text() or "" for p in pdf.pages])
+#     except: return ""
+
+# def analyze_resume(text):
+#     if not GOOGLE_API_KEY: return None
+#     genai.configure(api_key=GOOGLE_API_KEY)
+    
+#     # Using gemini-2.5-flash as requested
+#     model = genai.GenerativeModel('gemini-2.5-flash')
+    
+#     prompt = f"""
+#     Analyze resume. Return JSON.
+#     Extract: Name, Email, Phone, LinkedIn, Latest Degree, Exp (Years), Top Skills, ALL Projects.
+    
+#     RESUME: {text[:8000]}
+    
+#     JSON SCHEMA:
+#     {{
+#         "contact": {{ "name": "...", "email": "...", "phone": "...", "linkedin": "..." }},
+#         "education_degree": "...",
+#         "years_experience": "...",
+#         "skills": ["..."],
+#         "projects": [ {{ "title": "...", "tech_stack": "..." }} ]
+#     }}
+#     """
+#     try:
+#         res = model.generate_content(prompt, generation_config={"response_mime_type": "application/json"})
+#         return ResumeData(**json.loads(res.text))
+#     except: return None
+
+# # ==========================================
+# # 4. MAIN UI
+# # ==========================================
+
+# # HEADER
+# st.markdown("""
+# <div class="hero-container">
+#     <div class="hero-title">Resume Intelligence AI</div>
+#     <p style="font-size: 1.2rem; color: #e0e0e0;">Upload Resumes • Extract Insights • Export Data</p>
+# </div>
+# """, unsafe_allow_html=True)
+
+# # API KEY CHECK
+# if not GOOGLE_API_KEY:
+#     st.error("🔒 API Key Missing. Please set GOOGLE_API_KEY in your .env file.")
+#     st.stop()
+
+# # UPLOAD SECTION
+# col1, col2, col3 = st.columns([1, 6, 1])
+# with col2:
+#     uploaded_files = st.file_uploader("📂 Drag & Drop PDF Resumes Here", type=["pdf"], accept_multiple_files=True)
+
+# if uploaded_files:
+#     st.markdown("<br>", unsafe_allow_html=True)
+#     c1, c2, c3 = st.columns([1, 1, 1])
+#     with c2:
+#         start_process = st.button("🚀 IGNITE ANALYSIS", use_container_width=True)
+
+#     if start_process:
+#         results = []
+#         progress_bar = st.progress(0)
+#         status_box = st.empty()
+        
+#         # PROCESSING LOOP
+#         for i, file in enumerate(uploaded_files):
+#             status_box.info(f"⚡ Analyzing: {file.name}")
+#             text = extract_text(file.read())
+#             if text:
+#                 data = analyze_resume(text)
+#                 if data: results.append(data)
+            
+#             progress_bar.progress((i + 1) / len(uploaded_files))
+#             time.sleep(0.05)
+            
+#         progress_bar.empty()
+#         status_box.empty()
+        
+#         if results:
+#             st.markdown("---")
+#             st.subheader("📊 Intelligence Report")
+            
+#             # 1. METRICS
+#             m1, m2, m3, m4 = st.columns(4)
+#             m1.metric("Candidates", len(results))
+#             m2.metric("Total Projects", sum(len(r.projects) for r in results))
+            
+#             # Avg Exp Logic
+#             total_exp = 0
+#             count = 0
+#             for r in results:
+#                 if r.years_experience and any(char.isdigit() for char in r.years_experience):
+#                     import re
+#                     nums = re.findall(r'\d+', r.years_experience)
+#                     if nums: 
+#                         total_exp += int(nums[0])
+#                         count += 1
+#             avg_exp = f"{round(total_exp/count, 1)} Yrs" if count > 0 else "N/A"
+#             m3.metric("Avg. Experience", avg_exp)
+#             m4.metric("Success Rate", "100%")
+
+#             # 2. DATA TABLE
+#             tab1, tab2 = st.tabs(["📄 Detailed Table", "💾 JSON Data"])
+            
+#             # Prepare Data Rows
+#             rows = []
+#             for r in results:
+#                 proj_str = " • ".join([f"{p.title} [{p.tech_stack}]" for p in r.projects])
+#                 rows.append({
+#                     "Name": r.contact.name,
+#                     "Skills": ", ".join(r.skills), # Skills moved to 2nd position
+#                     "Experience": r.years_experience,
+#                     "Degree": r.education_degree,
+#                     "Projects": proj_str,
+#                     "Email": r.contact.email,
+#                     "LinkedIn": r.contact.linkedin
+#                 })
+            
+#             # Create DF and Force Column Order
+#             df = pd.DataFrame(rows)
+#             # Reorder columns explicitly: Name first, then Skills, then rest
+#             column_order = ["Name", "Skills", "Experience", "Degree", "Projects", "Email", "LinkedIn"]
+#             # Ensure columns exist before reordering (safety check)
+#             final_cols = [c for c in column_order if c in df.columns]
+#             df = df[final_cols]
+
+#             with tab1:
+#                 st.dataframe(
+#                     df,
+#                     column_config={
+#                         "Name": st.column_config.TextColumn("Candidate Name", width="medium"),
+#                         "Skills": st.column_config.TextColumn("Top Skills", width="large"),
+#                         "Projects": st.column_config.TextColumn("Key Projects", width="large"),
+#                         "LinkedIn": st.column_config.LinkColumn("Profile"),
+#                     },
+#                     use_container_width=True,
+#                     height=500
+#                 )
+            
+#             with tab2:
+#                 st.json([r.dict() for r in results])
+
+#             # 3. DOWNLOAD
+#             st.markdown("<br>", unsafe_allow_html=True)
+#             csv = df.to_csv(index=False).encode('utf-8')
+#             col_d1, col_d2, col_d3 = st.columns([1, 2, 1])
+#             with col_d2:
+#                 st.download_button(
+#                     label="📥 DOWNLOAD REPORT (CSV)",
+#                     data=csv,
+#                     file_name="Resume_Report.csv",
+#                     mime="text/csv",
+#                     use_container_width=True
+#                 )
+
+
+
+
+
+
 import streamlit as st
 import pandas as pd
 import pdfplumber
@@ -1317,23 +1639,24 @@ st.set_page_config(
 )
 
 # ==========================================
-# 2. HIGH-CONTRAST CSS (FIXING VISIBILITY ISSUES)
+# 2. CSS FIXES (VISIBILITY & HOVER)
 # ==========================================
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
     
-    /* 1. FORCE DARK BACKGROUND & WHITE TEXT GLOBAL */
+    /* 1. GLOBAL DARK THEME & TEXT */
     .stApp {
         background: radial-gradient(circle at top left, #1e1e2f, #0a0a12);
         font-family: 'Outfit', sans-serif;
+        color: #ffffff;
     }
     
-    /* Force all basic text to be white */
-    p, h1, h2, h3, h4, h5, h6, li, span {
-        color: #ffffff !important;
+    /* Force standard text to be white */
+    p, h1, h2, h3, h4, h5, h6, li, span, div {
+        color: #ffffff;
     }
-    
+
     /* HIDE DEFAULT MENU */
     #MainMenu, footer, header {visibility: hidden;}
     section[data-testid="stSidebar"] {display: none;}
@@ -1354,63 +1677,76 @@ st.markdown("""
         font-weight: 800 !important;
         background: linear-gradient(90deg, #40d0ff, #0080ff);
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent !important; /* Override white for gradient */
-        color: transparent !important;
+        -webkit-text-fill-color: transparent !important; 
         margin-bottom: 0.5rem !important;
     }
     
-    /* 3. FIX: FILE UPLOADER VISIBILITY */
+    /* 3. UPLOAD BOX FIXES (CRITICAL) */
+    
+    /* The Box Container */
     .stFileUploader {
         background: rgba(255, 255, 255, 0.05);
         border: 2px dashed #5b5b70;
         border-radius: 15px;
         padding: 2rem;
     }
-    /* This targets the "Drag and drop" text */
-    .stFileUploader div[data-testid="stMarkdownContainer"] p {
-        color: #ffffff !important;
-    }
-    /* This targets the uploaded filename (the invisible text you mentioned) */
+    
+    /* Fix 1: Make Filenames White (The invisible text issue) */
     div[data-testid="stFileUploader"] div[role="listitem"] div {
-        color: #ffffff !important; 
-        font-weight: 500;
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        background-color: transparent !important;
     }
-    .stFileUploader button {
-        color: #000000 !important; /* Button text needs to be black on white button */
-        background-color: #40d0ff !important;
-        border: none;
+    
+    /* Fix 2: Small "Limit 200MB" text */
+    div[data-testid="stFileUploader"] small {
+        color: #a0a0a0 !important;
     }
 
-    /* 4. FIX: METRIC CARDS VISIBILITY */
+    /* Fix 3: Prevent "White Out" on Hover */
+    div[data-testid="stFileUploader"]:hover {
+        background-color: rgba(255, 255, 255, 0.08) !important; /* Slight lighten only */
+    }
+    
+    /* Browse Button */
+    .stFileUploader button {
+        background-color: #40d0ff !important;
+        color: #000000 !important; /* Black text on Blue button */
+        border: none;
+        font-weight: 700;
+    }
+    
+    /* Uploaded File Status Icon */
+    div[data-testid="stFileUploader"] svg {
+        fill: #40d0ff !important;
+    }
+
+    /* 4. METRIC CARDS */
     div[data-testid="stMetric"] {
         background: rgba(40, 40, 60, 0.9);
         border: 1px solid #40d0ff;
         border-radius: 12px;
         padding: 15px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
     div[data-testid="stMetricLabel"] {
-        color: #a0c0ff !important; /* Bright Blue Label */
+        color: #a0c0ff !important; 
         font-size: 1rem !important;
     }
     div[data-testid="stMetricValue"] {
-        color: #ffffff !important; /* Pure White Value */
+        color: #ffffff !important; 
         font-size: 2rem !important;
     }
     
-    /* 5. FIX: TABLE VISIBILITY */
+    /* 5. TABLE VISIBILITY */
     div[data-testid="stDataFrame"] {
         background: rgba(30, 30, 46, 0.8);
         border-radius: 10px;
         padding: 10px;
     }
-    /* Header background and text */
     div[data-testid="stDataFrame"] th {
         background-color: #2a2a3e !important;
         color: #ffffff !important; 
-        font-size: 1rem !important;
     }
-    /* Cell text */
     div[data-testid="stDataFrame"] td {
         color: #e0e0e0 !important;
     }
@@ -1435,7 +1771,7 @@ st.markdown("""
 load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
 
-# --- DATA MODELS ---
+# --- DATA MODELS (Updated for Internships & Certs) ---
 class ContactInfo(BaseModel):
     name: Optional[str] = Field(None)
     email: Optional[str] = Field(None)
@@ -1449,8 +1785,9 @@ class Project(BaseModel):
 class ResumeData(BaseModel):
     contact: ContactInfo
     skills: List[str] = Field(default_factory=list)
+    internships: List[str] = Field(default_factory=list, description="List of internship roles/companies")
     projects: List[Project] = Field(default_factory=list)
-    education_degree: Optional[str] = Field(None)
+    certifications: List[str] = Field(default_factory=list, description="List of certifications")
     years_experience: Optional[str] = Field(None)
 
 # --- HELPER FUNCTIONS ---
@@ -1464,22 +1801,31 @@ def analyze_resume(text):
     if not GOOGLE_API_KEY: return None
     genai.configure(api_key=GOOGLE_API_KEY)
     
-    # Using gemini-2.5-flash as requested
     model = genai.GenerativeModel('gemini-2.5-flash')
     
+    # UPDATED PROMPT: Extract Internships & Certifications explicitly
     prompt = f"""
-    Analyze resume. Return JSON.
-    Extract: Name, Email, Phone, LinkedIn, Latest Degree, Exp (Years), Top Skills, ALL Projects.
+    Analyze the resume text below and extract data into strict JSON.
     
-    RESUME: {text[:8000]}
+    REQUIREMENTS:
+    1. Extract Contact (Name, Email, Phone).
+    2. Extract ALL Technical Skills.
+    3. Extract INTERNSHIPS (Role at Company).
+    4. Extract ALL Projects (Title + Tech Stack).
+    5. Extract CERTIFICATIONS (Name).
+    6. Years of Experience (number or "Fresher").
+    
+    RESUME TEXT:
+    {text[:10000]}
     
     JSON SCHEMA:
     {{
-        "contact": {{ "name": "...", "email": "...", "phone": "...", "linkedin": "..." }},
-        "education_degree": "...",
-        "years_experience": "...",
-        "skills": ["..."],
-        "projects": [ {{ "title": "...", "tech_stack": "..." }} ]
+        "contact": {{ "name": "...", "email": "...", "phone": "..." }},
+        "skills": ["Python", "SQL", ...],
+        "internships": ["Data Science Intern at Innomatics", ...],
+        "projects": [ {{ "title": "...", "tech_stack": "..." }} ],
+        "certifications": ["AWS Certified", "NPTEL Python", ...],
+        "years_experience": "..."
     }}
     """
     try:
@@ -1542,54 +1888,50 @@ if uploaded_files:
             m1, m2, m3, m4 = st.columns(4)
             m1.metric("Candidates", len(results))
             m2.metric("Total Projects", sum(len(r.projects) for r in results))
-            
-            # Avg Exp Logic
-            total_exp = 0
-            count = 0
-            for r in results:
-                if r.years_experience and any(char.isdigit() for char in r.years_experience):
-                    import re
-                    nums = re.findall(r'\d+', r.years_experience)
-                    if nums: 
-                        total_exp += int(nums[0])
-                        count += 1
-            avg_exp = f"{round(total_exp/count, 1)} Yrs" if count > 0 else "N/A"
-            m3.metric("Avg. Experience", avg_exp)
+            m3.metric("Total Internships", sum(len(r.internships) for r in results))
             m4.metric("Success Rate", "100%")
 
-            # 2. DATA TABLE
+            # 2. DATA TABLE PREP
             tab1, tab2 = st.tabs(["📄 Detailed Table", "💾 JSON Data"])
             
             # Prepare Data Rows
             rows = []
             for r in results:
-                proj_str = " • ".join([f"{p.title} [{p.tech_stack}]" for p in r.projects])
+                # Formatting lists to string for table
+                proj_str = " • ".join([f"{p.title} ({p.tech_stack})" for p in r.projects])
+                intern_str = " • ".join(r.internships)
+                cert_str = " • ".join(r.certifications)
+                skills_str = ", ".join(r.skills)
+                
                 rows.append({
                     "Name": r.contact.name,
-                    "Skills": ", ".join(r.skills), # Skills moved to 2nd position
-                    "Experience": r.years_experience,
-                    "Degree": r.education_degree,
-                    "Projects": proj_str,
+                    "Phone": r.contact.phone,
                     "Email": r.contact.email,
-                    "LinkedIn": r.contact.linkedin
+                    "Technical Skills": skills_str,
+                    "Internship": intern_str,
+                    "Projects": proj_str,
+                    "Certificate": cert_str
                 })
             
-            # Create DF and Force Column Order
+            # Create DF and Force EXACT User Requested Order
             df = pd.DataFrame(rows)
-            # Reorder columns explicitly: Name first, then Skills, then rest
-            column_order = ["Name", "Skills", "Experience", "Degree", "Projects", "Email", "LinkedIn"]
-            # Ensure columns exist before reordering (safety check)
-            final_cols = [c for c in column_order if c in df.columns]
-            df = df[final_cols]
+            target_order = ["Name", "Phone", "Email", "Technical Skills", "Internship", "Projects", "Certificate"]
+            
+            # Ensure columns exist (handle empty data)
+            for col in target_order:
+                if col not in df.columns:
+                    df[col] = "" # Fill missing columns with empty string
+            
+            df = df[target_order] # Reorder
 
             with tab1:
                 st.dataframe(
                     df,
                     column_config={
                         "Name": st.column_config.TextColumn("Candidate Name", width="medium"),
-                        "Skills": st.column_config.TextColumn("Top Skills", width="large"),
-                        "Projects": st.column_config.TextColumn("Key Projects", width="large"),
-                        "LinkedIn": st.column_config.LinkColumn("Profile"),
+                        "Technical Skills": st.column_config.TextColumn("Skills", width="large"),
+                        "Projects": st.column_config.TextColumn("Projects", width="large"),
+                        "Internship": st.column_config.TextColumn("Internships", width="medium"),
                     },
                     use_container_width=True,
                     height=500
@@ -1610,6 +1952,7 @@ if uploaded_files:
                     mime="text/csv",
                     use_container_width=True
                 )
+
 
 
 
