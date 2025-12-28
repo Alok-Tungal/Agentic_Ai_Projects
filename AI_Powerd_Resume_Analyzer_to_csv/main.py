@@ -2978,27 +2978,27 @@
 
 
 
-import streamlit as st
-import pandas as pd
-import pdfplumber
-import io
-import json
-import os
-import time
-from dotenv import load_dotenv
-import google.generativeai as genai
-from pydantic import BaseModel, Field
-from typing import List, Optional
+# import streamlit as st
+# import pandas as pd
+# import pdfplumber
+# import io
+# import json
+# import os
+# import time
+# from dotenv import load_dotenv
+# import google.generativeai as genai
+# from pydantic import BaseModel, Field
+# from typing import List, Optional
 
-# ==========================================
-# 1. PAGE CONFIGURATION
-# ==========================================
-st.set_page_config(
-    page_title="Resume Intelligence AI",
-    page_icon="🧠",
-    layout="wide",
-    initial_sidebar_state="collapsed"
-)
+# # ==========================================
+# # 1. PAGE CONFIGURATION
+# # ==========================================
+# st.set_page_config(
+#     page_title="Resume Intelligence AI",
+#     page_icon="🧠",
+#     layout="wide",
+#     initial_sidebar_state="collapsed"
+# )
 
 # # ==========================================
 # # 2. CSS STYLING (FILE NAME COLOR FIX)
@@ -3132,128 +3132,355 @@ st.set_page_config(
 # </style>
 # """, unsafe_allow_html=True)
 
-st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+# st.markdown("""
+# <style>
+# @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
-/* ============================= */
-/* GLOBAL DARK THEME */
-/* ============================= */
-.stApp {
-    background: radial-gradient(circle at top left, #1e1e2f, #0a0a12);
-    font-family: 'Outfit', sans-serif;
-    color: #ffffff;
-}
-/* Force all text white */
-p, h1, h2, h3, h4, h5, h6, li, span, div {
-    color: #ffffff;
-}
+# /* ============================= */
+# /* GLOBAL DARK THEME */
+# /* ============================= */
+# .stApp {
+#     background: radial-gradient(circle at top left, #1e1e2f, #0a0a12);
+#     font-family: 'Outfit', sans-serif;
+#     color: #ffffff;
+# }
+# /* Force all text white */
+# p, h1, h2, h3, h4, h5, h6, li, span, div {
+#     color: #ffffff;
+# }
 
-/* Hide default Streamlit UI */
-#MainMenu, footer, header { visibility: hidden; }
-section[data-testid="stSidebar"] { display: none; }
+# /* Hide default Streamlit UI */
+# #MainMenu, footer, header { visibility: hidden; }
+# section[data-testid="stSidebar"] { display: none; }
 
-/* ============================= */
-/* FILE UPLOADER */
-/* ============================= */
-.stFileUploader {
-    background: rgba(255, 255, 255, 0.05);
-    border: 2px dashed #5b5b70;
-    border-radius: 15px;
-    padding: 2rem;
-}
+# /* ============================= */
+# /* FILE UPLOADER */
+# /* ============================= */
+# .stFileUploader {
+#     background: rgba(255, 255, 255, 0.05);
+#     border: 2px dashed #5b5b70;
+#     border-radius: 15px;
+#     padding: 2rem;
+# }
 
-/* ✅ FIX: Uploaded file name (resume.pdf) */
-div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileName"],
-div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileName"] * {
-    color: #ffffff !important;
-    opacity: 1 !important;
-}
+# /* ✅ FIX: Uploaded file name (resume.pdf) */
+# div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileName"],
+# div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileName"] * {
+#     color: #ffffff !important;
+#     opacity: 1 !important;
+# }
 
-/* File size text (98.9KB) */
-div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileSize"] {
-    color: #dcdcdc !important;
-}
+# /* File size text (98.9KB) */
+# div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileSize"] {
+#     color: #dcdcdc !important;
+# }
 
-/* Upload icon */
-div[data-testid="stFileUploader"] svg {
-    fill: #40d0ff !important;
-}
+# /* Upload icon */
+# div[data-testid="stFileUploader"] svg {
+#     fill: #40d0ff !important;
+# }
 
-/* Browse button */
-.stFileUploader button {
-    background-color: #40d0ff !important;
-    color: #000000 !important;
-    font-weight: 700;
-    border: none;
-}
+# /* Browse button */
+# .stFileUploader button {
+#     background-color: #40d0ff !important;
+#     color: #000000 !important;
+#     font-weight: 700;
+#     border: none;
+# }
 
-/* ============================= */
-/* HERO SECTION */
-/* ============================= */
-.hero-container {
-    text-align: center;
-    padding: 3rem 2rem;
-    background: rgba(30, 30, 46, 0.8);
-    border-radius: 20px;
-    margin-bottom: 2rem;
-}
+# /* ============================= */
+# /* HERO SECTION */
+# /* ============================= */
+# .hero-container {
+#     text-align: center;
+#     padding: 3rem 2rem;
+#     background: rgba(30, 30, 46, 0.8);
+#     border-radius: 20px;
+#     margin-bottom: 2rem;
+# }
 
-.hero-title {
-    font-size: 3.5rem;
-    font-weight: 800;
-    background: linear-gradient(90deg, #40d0ff, #0080ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
+# .hero-title {
+#     font-size: 3.5rem;
+#     font-weight: 800;
+#     background: linear-gradient(90deg, #40d0ff, #0080ff);
+#     -webkit-background-clip: text;
+#     -webkit-text-fill-color: transparent;
+# }
 
-/* ============================= */
-/* METRIC CARDS */
-/* ============================= */
-div[data-testid="stMetric"] {
-    background: rgba(40, 40, 60, 0.9);
-    border-radius: 12px;
-    padding: 15px;
-}
+# /* ============================= */
+# /* METRIC CARDS */
+# /* ============================= */
+# div[data-testid="stMetric"] {
+#     background: rgba(40, 40, 60, 0.9);
+#     border-radius: 12px;
+#     padding: 15px;
+# }
 
-div[data-testid="stMetricLabel"] {
-    color: #a0c0ff !important;
-}
+# div[data-testid="stMetricLabel"] {
+#     color: #a0c0ff !important;
+# }
 
-div[data-testid="stMetricValue"] {
-    color: #ffffff !important;
-}
+# div[data-testid="stMetricValue"] {
+#     color: #ffffff !important;
+# }
 
-/* ============================= */
-/* DATA TABLE */
-/* ============================= */
-div[data-testid="stDataFrame"] {
-    background: rgba(30, 30, 46, 0.8);
-    border-radius: 10px;
-    padding: 10px;
-}
+# /* ============================= */
+# /* DATA TABLE */
+# /* ============================= */
+# div[data-testid="stDataFrame"] {
+#     background: rgba(30, 30, 46, 0.8);
+#     border-radius: 10px;
+#     padding: 10px;
+# }
 
-div[data-testid="stDataFrame"] th {
-    background-color: #2a2a3e !important;
-    color: #ffffff !important;
-}
+# div[data-testid="stDataFrame"] th {
+#     background-color: #2a2a3e !important;
+#     color: #ffffff !important;
+# }
 
-div[data-testid="stDataFrame"] td {
-    color: #e0e0e0 !important;
-}
+# div[data-testid="stDataFrame"] td {
+#     color: #e0e0e0 !important;
+# }
 
-/* ============================= */
-/* PRIMARY BUTTON */
-/* ============================= */
-div.stButton > button {
-    background: linear-gradient(90deg, #00c6ff, #0072ff);
-    color: #ffffff !important;
-    font-weight: 700;
-    padding: 0.8rem 3rem;
-    border-radius: 50px;
-    border: none;
-}
+# /* ============================= */
+# /* PRIMARY BUTTON */
+# /* ============================= */
+# div.stButton > button {
+#     background: linear-gradient(90deg, #00c6ff, #0072ff);
+#     color: #ffffff !important;
+#     font-weight: 700;
+#     padding: 0.8rem 3rem;
+#     border-radius: 50px;
+#     border: none;
+# }
 
+
+# # ==========================================
+# # 3. SETUP & LOGIC
+# # ==========================================
+# load_dotenv()
+# GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
+
+# class ContactInfo(BaseModel):
+#     name: Optional[str] = Field(None)
+#     email: Optional[str] = Field(None)
+#     phone: Optional[str] = Field(None)
+#     linkedin: Optional[str] = Field(None)
+
+# class Project(BaseModel):
+#     title: str
+#     tech_stack: Optional[str] = Field(None)
+
+# class ResumeData(BaseModel):
+#     contact: ContactInfo
+#     skills: List[str] = Field(default_factory=list)
+#     internships: List[str] = Field(default_factory=list)
+#     projects: List[Project] = Field(default_factory=list)
+#     certifications: List[str] = Field(default_factory=list)
+#     years_experience: Optional[str] = Field(None)
+
+# def extract_text(file_bytes):
+#     try:
+#         with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
+#             return "\n".join([p.extract_text() or "" for p in pdf.pages])
+#     except:
+#         return ""
+
+# def analyze_resume(text):
+#     if not GOOGLE_API_KEY:
+#         return None
+
+#     genai.configure(api_key=GOOGLE_API_KEY)
+#     model = genai.GenerativeModel('gemini-2.5-flash')
+
+#     prompt = f"""
+#     Analyze resume and return JSON.
+
+#     Extract:
+#     Contact, Skills, Internships,
+#     Projects, Certifications, Experience.
+
+#     RESUME:
+#     {text[:10000]}
+#     """
+
+#     try:
+#         res = model.generate_content(
+#             prompt,
+#             generation_config={"response_mime_type": "application/json"}
+#         )
+#         return ResumeData(**json.loads(res.text))
+#     except:
+#         return None
+
+# # ==========================================
+# # 4. MAIN UI
+# # ==========================================
+# st.markdown("""
+# <div class="hero-container">
+#     <div class="hero-title">Resume Intelligence AI</div>
+#     <p style="font-size: 1.2rem; color: #e0e0e0;">Upload Resumes • Extract Insights • Export Data</p>
+# </div>
+# """, unsafe_allow_html=True)
+
+
+# if not GOOGLE_API_KEY:
+#     st.error("🔒 API Key Missing")
+#     st.stop()
+
+# col1, col2, col3 = st.columns([1, 6, 1])
+# with col2:
+#     uploaded_files = st.file_uploader(
+#         "📂 Drag & Drop PDF Resumes Here",
+#         type=["pdf"],
+#         accept_multiple_files=True
+#     )
+
+# if uploaded_files:
+#     c1, c2, c3 = st.columns([1,1,1])
+#     with c2:
+#         start_process = st.button("🚀 IGNITE ANALYSIS", use_container_width=True)
+
+
+
+import streamlit as st
+import pandas as pd
+import pdfplumber
+import io
+import json
+import os
+import time
+from dotenv import load_dotenv
+import google.generativeai as genai
+from pydantic import BaseModel, Field
+from typing import List, Optional
+
+# ==========================================
+# 1. PAGE CONFIGURATION
+# ==========================================
+st.set_page_config(
+    page_title="Resume Intelligence AI",
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+# ==========================================
+# 2. CSS STYLING
+# ==========================================
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+    /* GLOBAL DARK THEME */
+    .stApp {
+        background: radial-gradient(circle at top left, #1e1e2f, #0a0a12);
+        font-family: 'Outfit', sans-serif;
+        color: #ffffff;
+    }
+
+    p, h1, h2, h3, h4, h5, h6, li, span, div {
+        color: #ffffff;
+    }
+
+    #MainMenu, footer, header { visibility: hidden; }
+    section[data-testid="stSidebar"] { display: none; }
+
+    /* FILE UPLOADER */
+    .stFileUploader {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px dashed #5b5b70;
+        border-radius: 15px;
+        padding: 2rem;
+    }
+
+    /* Uploaded file name (resume.pdf) */
+    div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileName"],
+    div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileName"] * {
+        color: #ffffff !important;
+        opacity: 1 !important;
+    }
+
+    /* File size */
+    div[data-testid="stFileUploader"] span[data-testid="fileUploaderFileSize"] {
+        color: #dcdcdc !important;
+    }
+
+    /* Upload icon */
+    div[data-testid="stFileUploader"] svg {
+        fill: #40d0ff !important;
+    }
+
+    /* Browse button */
+    .stFileUploader button {
+        background-color: #40d0ff !important;
+        color: #000000 !important;
+        font-weight: 700;
+        border: none;
+    }
+
+    /* HERO */
+    .hero-container {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: rgba(30, 30, 46, 0.8);
+        border-radius: 20px;
+        margin-bottom: 2rem;
+    }
+
+    .hero-title {
+        font-size: 3.5rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, #40d0ff, #0080ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* METRICS */
+    div[data-testid="stMetric"] {
+        background: rgba(40, 40, 60, 0.9);
+        border-radius: 12px;
+        padding: 15px;
+    }
+
+    div[data-testid="stMetricLabel"] {
+        color: #a0c0ff !important;
+    }
+
+    div[data-testid="stMetricValue"] {
+        color: #ffffff !important;
+    }
+
+    /* DATA TABLE */
+    div[data-testid="stDataFrame"] {
+        background: rgba(30, 30, 46, 0.8);
+        border-radius: 10px;
+        padding: 10px;
+    }
+
+    div[data-testid="stDataFrame"] th {
+        background-color: #2a2a3e !important;
+        color: #ffffff !important;
+    }
+
+    div[data-testid="stDataFrame"] td {
+        color: #e0e0e0 !important;
+    }
+
+    /* PRIMARY BUTTON */
+    div.stButton > button {
+        background: linear-gradient(90deg, #00c6ff, #0072ff);
+        color: #ffffff !important;
+        font-weight: 700;
+        padding: 0.8rem 3rem;
+        border-radius: 50px;
+        border: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # ==========================================
 # 3. SETUP & LOGIC
@@ -3279,55 +3506,31 @@ class ResumeData(BaseModel):
     certifications: List[str] = Field(default_factory=list)
     years_experience: Optional[str] = Field(None)
 
-def extract_text(file_bytes):
-    try:
-        with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
-            return "\n".join([p.extract_text() or "" for p in pdf.pages])
-    except:
-        return ""
-
-def analyze_resume(text):
-    if not GOOGLE_API_KEY:
-        return None
-
-    genai.configure(api_key=GOOGLE_API_KEY)
-    model = genai.GenerativeModel('gemini-2.5-flash')
-
-    prompt = f"""
-    Analyze resume and return JSON.
-
-    Extract:
-    Contact, Skills, Internships,
-    Projects, Certifications, Experience.
-
-    RESUME:
-    {text[:10000]}
+# ==========================================
+# 4. HERO UI
+# ==========================================
+st.markdown(
     """
-
-    try:
-        res = model.generate_content(
-            prompt,
-            generation_config={"response_mime_type": "application/json"}
-        )
-        return ResumeData(**json.loads(res.text))
-    except:
-        return None
+    <div class="hero-container">
+        <div class="hero-title">Resume Intelligence AI</div>
+        <p style="font-size:1.2rem; color:#e0e0e0;">
+            Upload Resumes &bull; Extract Insights &bull; Export Data
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 # ==========================================
-# 4. MAIN UI
+# 5. API KEY CHECK
 # ==========================================
-st.markdown("""
-<div class="hero-container">
-    <div class="hero-title">Resume Intelligence AI</div>
-    <p style="font-size: 1.2rem; color: #e0e0e0;">Upload Resumes • Extract Insights • Export Data</p>
-</div>
-""", unsafe_allow_html=True)
-
-
 if not GOOGLE_API_KEY:
     st.error("🔒 API Key Missing")
     st.stop()
 
+# ==========================================
+# 6. FILE UPLOADER
+# ==========================================
 col1, col2, col3 = st.columns([1, 6, 1])
 with col2:
     uploaded_files = st.file_uploader(
@@ -3337,11 +3540,9 @@ with col2:
     )
 
 if uploaded_files:
-    c1, c2, c3 = st.columns([1,1,1])
+    c1, c2, c3 = st.columns([1, 1, 1])
     with c2:
         start_process = st.button("🚀 IGNITE ANALYSIS", use_container_width=True)
-
-
 
 
 
