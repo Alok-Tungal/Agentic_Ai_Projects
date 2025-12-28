@@ -151,7 +151,7 @@
 #     genai.configure(api_key=GOOGLE_API_KEY)
 #     model = genai.GenerativeModel('gemini-1.5-flash')
     
-#     prompt = f"""
+#     prompt = f""" 
 #     Analyze resume. Return JSON.
 #     Extract: Name, Email, Phone, LinkedIn, Latest Degree, Exp (Years), Top Skills, ALL Projects.
     
@@ -987,4 +987,5 @@ if uploaded_files:
                     mime="text/csv",
                     use_container_width=True
                 )
+
 
