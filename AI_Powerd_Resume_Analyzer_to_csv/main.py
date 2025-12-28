@@ -1691,18 +1691,11 @@ st.markdown("""
         padding: 2rem;
     }
     
-    # /* Fix 1: Make Filenames White (The invisible text issue) */
-    # div[data-testid="stFileUploader"] div[role="listitem"] div {
-    #     color: #ffffff !important;
-    #     font-weight: 600 !important;
-    #     background-color: transparent !important;
-    # }
-
-    /* --- FIX: Make Uploaded Filename White --- */
+    /* Fix 1: Make Filenames White (The invisible text issue) */
     div[data-testid="stFileUploader"] div[role="listitem"] div {
         color: #ffffff !important;
-        background-color: transparent !important;
         font-weight: 600 !important;
+        background-color: transparent !important;
     }
     
     /* Fix 2: Small "Limit 200MB" text */
@@ -1712,7 +1705,8 @@ st.markdown("""
 
     /* Fix 3: Prevent "White Out" on Hover */
     div[data-testid="stFileUploader"]:hover {
-        background-color: rgba(255, 255, 255, 0.10) !important; /* Slight lighten only */
+    color: #a0a0a0 !important
+        # background-color: rgba(255, 255, 255, 0.10) !important; /* Slight lighten only */
     }
     
     /* Browse Button */
@@ -2297,5 +2291,6 @@ if uploaded_files:
 #                     mime="text/csv",
 #                     use_container_width=True
 #                 )
+
 
 
