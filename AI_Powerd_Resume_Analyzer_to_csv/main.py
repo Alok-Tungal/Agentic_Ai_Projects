@@ -3,7 +3,7 @@
 # import pdfplumber
 # import io
 # import json
-# import os   
+# import os       
 # import time
 # from dotenv import load_dotenv
 # import google.generativeai as genai
@@ -670,7 +670,7 @@ from typing import List, Optional
 # 1. ADVANCED PAGE CONFIG
 # ==========================================
 st.set_page_config(
-    page_title="Resume Intelligence AI",
+    page_title="Resume Intelligence A",    
     page_icon="🧠",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -987,5 +987,6 @@ if uploaded_files:
                     mime="text/csv",
                     use_container_width=True
                 )
+
 
 
