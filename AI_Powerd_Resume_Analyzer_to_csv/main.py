@@ -2001,7 +2001,7 @@ st.markdown("""
     
     /* 2. UPLOAD BOX (FIXED FILENAME VISIBILITY) */
     .stFileUploader {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(0, 0, 0, 0.05);
         border: 2px dashed #5b5b70;
         border-radius: 15px;
         padding: 2rem;
@@ -2290,6 +2290,7 @@ if uploaded_files:
                     mime="text/csv",
                     use_container_width=True
                 )
+
 
 
 
