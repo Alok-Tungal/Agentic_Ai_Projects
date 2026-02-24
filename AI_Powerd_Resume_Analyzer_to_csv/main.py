@@ -177,9 +177,9 @@ load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY") or os.getenv("gemini")
 
 class ContactInfo(BaseModel):
-    name: Optional[str] = Field(None)
+    name: Optional[str] = Field(None) # Optional → Controls whether field is required
     email: Optional[str] = Field(None)
-    phone: Optional[str] = Field(None)
+    phone: Optional[str] = Field(None) # Field → Adds metadata & validation
     linkedin: Optional[str] = Field(None)
 
 class Project(BaseModel):
@@ -189,7 +189,7 @@ class Project(BaseModel):
 class ResumeData(BaseModel):
     contact: ContactInfo
     skills: List[str] = Field(default_factory=list)
-    internships: List[str] = Field(default_factory=list)
+    internships: List[str] = Field(default_factory=list) #Each object gets its own empty list
     projects: List[Project] = Field(default_factory=list)
     certifications: List[str] = Field(default_factory=list)
     years_experience: Optional[str] = Field(None)
@@ -207,7 +207,6 @@ def analyze_resume(text):
         
     genai.configure(api_key=GOOGLE_API_KEY)
     
-    # Changed to 1.5-flash to ensure it works (2.5 might cause errors if not available)
     model = genai.GenerativeModel('gemini-2.5-flash-lite')
     
     prompt = f"""
@@ -354,3 +353,4 @@ if uploaded_files:
                     mime="text/csv",
                     use_container_width=True
                 )
+
